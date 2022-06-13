@@ -1,25 +1,31 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <array>
+#include "../includes/common.h"
+
+typedef std::array<int, 2> coord;
 
 class Road {
     public:
         int uniqueID;
         int length;
         std::string orient;  // Either "horiz" for horizontal or "vert" for vertical
-        int source[2];  // (x, y) coord for road entrance/source
-        int sink[2];  // (x, y) coord for road exit/sink
+        coord source;  // (x, y) coord for road entrance/source
+        coord sink;  // (x, y) coord for road exit/sink
         std::string flowDir;  // "up", "down", "left", or "right"
-        std::vector<int> topLeft;
-        std::vector<int> bottomRight;
+        coord topLeft;
+        coord bottomRight;
         // source road 
         // sink road
         Road(int roadUniqueID, std::string roadFlowDir,
-                std::vector<int> roadTopLeft, std::vector<int> roadBottomRight) {
+                coord roadTopLeft, coord roadBottomRight) {
             uniqueID = roadUniqueID;
             flowDir = roadFlowDir;
-            topLeft = roadTopLeft;
-            bottomRight = roadBottomRight;
+            topLeft[0] = roadTopLeft[0];
+            topLeft[1] = roadTopLeft[1];
+            bottomRight[0] = roadBottomRight[0];
+            bottomRight[1] = roadBottomRight[1];
             int roadWidth = roadBottomRight[0] - roadTopLeft[0];
             int roadHeight = roadBottomRight[1] - roadTopLeft[1];
             length = std::max(roadWidth, roadHeight);

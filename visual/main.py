@@ -1,7 +1,7 @@
 import pygame
 import math
 import test_map
-import map_parser
+import parser
 
 
 
@@ -50,6 +50,7 @@ def main():
     clock = pygame.time.Clock()  
     car1 = Car(100, 100, "basic_car.png")
     car2 = Car(500, 500, "basic_car.png")
+    car_paths = parser.get_car_paths_from_csv("car_data.csv")
 
     running = True
     i = 0
@@ -64,7 +65,7 @@ def main():
         win.fill((255, 255, 255))
 
         # Initialize map 
-        map_parser.draw_map(win)
+        parser.draw_map_from_csv(win, "road_data.csv")
         # road0_width = test_map.bottom_right0[0] - test_map.top_left0[0]
         # road0_height = test_map.top_left0[1] - test_map.bottom_right0[1]
         # # pygame.draw.rect(win, road_color,
@@ -77,19 +78,17 @@ def main():
         #     car.angle -= 2
         # else:
         #     car.y = (car.y + 10) % screen_height
-        v1 = example_path_1[i][1]
-        p1 = example_path_1[i][0]
-        car1.angle = bearing((0, 0), v1) - 90
+        p1 = car_paths[0][i][0]
+        d1 = car_paths[0][i][1]
+        car1.angle = bearing((0, 0), d1)
         car1.x, car1.y = p1[0], p1[1]
         draw(car1.image, car1.x, car1.y, car1.angle, win)
 
-        v2 = example_path_2[i][1]
-        p2 = example_path_2[i][0]
-        car2.angle = bearing((0, 0), v2) - 90
-        # car2.angle = 135.0
+        p2 = car_paths[1][i][0]
+        d2 = car_paths[1][i][1]
+        car2.angle = bearing((0, 0), d2)
         car2.x, car2.y = p2[0], p2[1]
         draw(car2.image, car2.x, car2.y, car2.angle, win)
-
 
         i += 1
         pygame.display.update()
