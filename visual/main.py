@@ -1,8 +1,7 @@
 import pygame
 import math
-import test_map
 import parser
-
+import pandas as pd
 
 
 def bearing(a: tuple, b: tuple) -> float:
@@ -36,48 +35,49 @@ def draw(image, x, y, angle, window):
     window.blit(rotated_image, rotated_rectangle)
 
 
-screen_height, screen_width = test_map.map_height, test_map.map_width
-example_path_1 = [((3*i, 500), (0, i)) for i in range(screen_width)]
-example_path_2 = [((screen_width-10*i, 500), (0, -i)) for i in range(screen_width)]
+screen_height, screen_width = 1000, 1000
+# example_path_1 = [((3*i, 500), (0, i)) for i in range(screen_width)]
+# example_path_2 = [((screen_width-10*i, 500), (0, -i)) for i in range(screen_width)]
+
 
 def main():
     pygame.init()
     win = pygame.display.set_mode((screen_height, screen_width))
     pygame.display.set_caption("Traffic Sim")
 
+    fps = 50
+    clock = pygame.time.Clock()
 
-    fps = 50 
-    clock = pygame.time.Clock()  
+    # Initialize Car objects
     car1 = Car(100, 100, "basic_car.png")
     car2 = Car(500, 500, "basic_car.png")
+    # Read in car path data
     car_paths = parser.get_car_paths_from_csv("car_data.csv")
+
+    # Read in road data
+    road_data_df = pd.read_csv("road_data.csv", sep=';')
 
     running = True
     i = 0
+    sim_time = 60  # Simulation time in seconds
+    dt = 1/fps  # Number of seconds that pass between frames
+    t = 0
     while running:
-        # set fps  
-        clock.tick(fps)  
+        # Set fps
+        clock.tick(fps)
+        t += dt
+        if t >= sim_time:
+            break
         # Check to see if we are trying to close the window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                
         win.fill((255, 255, 255))
 
-        # Initialize map 
-        parser.draw_map_from_csv(win, "road_data.csv")
-        # road0_width = test_map.bottom_right0[0] - test_map.top_left0[0]
-        # road0_height = test_map.top_left0[1] - test_map.bottom_right0[1]
-        # # pygame.draw.rect(win, road_color,
-        #                  pygame.Rect(test_map.top_left0,
-        #                              (road0_width, road0_height)))
+        # Draw the map map
+        parser.draw_map_from_csv(win, road_data_df)
 
-        # if car.x < 500:
-        #     car.x += 5
-        # if car.angle > 0:
-        #     car.angle -= 2
-        # else:
-        #     car.y = (car.y + 10) % screen_height
+        #
         p1 = car_paths[0][i][0]
         d1 = car_paths[0][i][1]
         car1.angle = bearing((0, 0), d1)
@@ -93,39 +93,9 @@ def main():
         i += 1
         pygame.display.update()
 
+    print("Simulation Complete!")
     pygame.quit()
 
 
 if __name__ == "__main__":
     main()
-
-        
-# Player rectangle
-# pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
-
-# Boundaries
-# pygame.draw.rect(win, (0, 0, 0), (0, 0, 850, 500))
-# pygame.draw.rect(win, (0, 0, 0), (screen_width-850, 0, 850, 500))
-# pygame.draw.rect(win, (0, 0, 0), (0, screen_height-500, 850, 500))
-# pygame.draw.rect(win, (0, 0, 0), (screen_width-850, screen_height-500, 850, 500))
-
-# t = pygame.time.get_ticks()
-# for i in range(5):
-#     pygame.draw.rect(win, ((i*50)%255, 0, 0), (900, (i*200 + t)%1920, width, height))
-# # Store keys pressed
-# keys = pygame.key.get_pressed()
-# # Left arrow key is pressed
-# if keys[pygame.K_LEFT] and x > 0:
-#     # decrement in x co-ordinate
-#     x -= vel
-# # Right arrow key is pressed
-# if keys[pygame.K_RIGHT] and x < screen_width - width:
-#     # increment in x co-ordinate
-#     x += vel
-# # Up arrow key
-# if keys[pygame.K_UP] and y > 0:
-#     y -= vel
-# # Down arrow key
-# if keys[pygame.K_DOWN] and y < screen_height - width:
-#     y += vel
-    

@@ -2,68 +2,45 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <cmath>
 #include "../includes/common.h"
 
-typedef std::array<int, 2> coord;
+typedef std::array<int, 2> intCoord;
+typedef std::array<float, 2> floatCoord;
+
+
+float norm(std::array<int, 2> v) {
+    return sqrt(pow(v[0], 2) + pow(v[1], 2));
+}
 
 class Road {
     public:
         int uniqueID;
-        int length;
-        std::string orient;  // Either "horiz" for horizontal or "vert" for vertical
-        coord source;  // (x, y) coord for road entrance/source
-        coord sink;  // (x, y) coord for road exit/sink
-        std::string flowDir;  // "up", "down", "left", or "right"
-        coord topLeft;
-        coord bottomRight;
-        // source road 
-        // sink road
-        Road(int roadUniqueID, std::string roadFlowDir,
-                coord roadTopLeft, coord roadBottomRight) {
+        floatCoord flowDir;  // Scaled to have length 1
+        intCoord topLeft;
+        intCoord bottomRight;
+        intCoord source;  // (x, y) intCoord for road entrance/source
+        intCoord sink;
+        std::vector<intCoord> sinks; // (x, y) intCoord for road exit/sink
+        // Note: for intersections we can have multiple sinks, so we store them
+        // in a vector and loop over the possible sinks each time step.
+        int currentSinkIdx = 0; // Idx of the currently active sink
+        Road(int roadUniqueID, intCoord roadSource, std::vector<intCoord> roadSinks,
+                intCoord roadTopLeft, intCoord roadBottomRight) {
             uniqueID = roadUniqueID;
-            flowDir = roadFlowDir;
+            source = roadSource;
+            sinks = roadSinks;
+            sink = sinks[currentSinkIdx];
+            // Note: negative y because coordinates upside down.
+            intCoord unscaledFlowDir = {sink[0]-source[0], -(sink[1]-source[1])};
+            flowDir = {(1/norm(unscaledFlowDir))*unscaledFlowDir[0],
+            (1/norm(unscaledFlowDir))*unscaledFlowDir[1]};
             topLeft[0] = roadTopLeft[0];
             topLeft[1] = roadTopLeft[1];
             bottomRight[0] = roadBottomRight[0];
             bottomRight[1] = roadBottomRight[1];
-            int roadWidth = roadBottomRight[0] - roadTopLeft[0];
-            int roadHeight = roadBottomRight[1] - roadTopLeft[1];
-            length = std::max(roadWidth, roadHeight);
-            if (roadWidth < roadHeight) {
-                orient = "vert";
-                if (roadFlowDir == "up") {
-                    source[0] = roadBottomRight[0] - (roadWidth/2);
-                    source[1] = roadBottomRight[1];
-                    sink[0] = roadTopLeft[0] + (roadWidth/2);
-                    sink[1] = roadTopLeft[1];
-                }
-                else if (roadFlowDir == "down") {
-                    source[0] = roadTopLeft[0] + (roadWidth/2);
-                    source[1] = roadTopLeft[1];
-                    sink[0] = roadBottomRight[0] - (roadWidth/2);
-                    sink[1] = roadBottomRight[1];
-                }
-                else {
-                    std::cout << roadFlowDir << " is not a valid flow direction!" << std::endl;
-                }
-            }
-            else {
-                orient = "horiz";
-                if (roadFlowDir == "left") {
-                    source[0] = roadBottomRight[0];
-                    source[1] = roadTopLeft[1] - (roadHeight/2);
-                    sink[0] = roadTopLeft[0];
-                    sink[1] = roadTopLeft[1] - (roadHeight/2);
-                }
-                else if (roadFlowDir == "right") {
-                    source[0] = roadTopLeft[0];
-                    source[1] = roadTopLeft[1] - (roadHeight/2);
-                    sink[0] = roadBottomRight[0];
-                    sink[1] = roadTopLeft[1] - (roadHeight/2);
-                }
-                else {
-                    std::cout << roadFlowDir << " is not a valid flow direction!" << std::endl;
-                }
-            }
+        }
+        void updateSink() {
+            sink = sinks[currentSinkIdx];
         }
 };

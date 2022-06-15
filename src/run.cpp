@@ -10,16 +10,18 @@
 float fps = 50.0;    // Frames per second
 float dt = 1 / fps;  // Time between frames
 bool export_data = true;
-float simTime = 15; // Simulation time in seconds
+float simTime = 60; // Simulation time in seconds
 int totalFrameNum = simTime / dt;  // Total number of frames
 
 // Still to Implement
-// TODO: IDM equations for 1D model
-// TODO: Expand to 2D - Implement turning
-// TODO: Intersections with Traffic Lights
+// TODO: IDM equations
 // TODO: Collision detection
+// TODO: Intersections with Traffic Lights
+// TODO: Random car spawning
 
 // Improvements:
+// - Pastel colour cars
+// - Refactor code
 // - MOBIL Lane changing
 // - More layouts
 
@@ -28,14 +30,20 @@ int totalFrameNum = simTime / dt;  // Total number of frames
 
 // Note: We are assuming 10px == 1m irl
 
-typedef std::array<int, 2> coord;
+typedef std::array<int, 2> intCoord;
+typedef std::array<float, 2> floatCoord;
 
 int main() {
     // Setup our road layout
-    Road road1(0, "left", {150, 475}, {900, 525});
-    Road road2(1, "left", {100, 475}, {150, 525});
-    Road road3(2, "up", {100, 100}, {150, 475});
-    std::vector<Road> roads = {road1, road2, road3};
+    Road road0(0, {120, 860}, {{140, 880}}, {100, 860}, {140, 900});
+    Road road1(1, {140, 880}, {{860, 880}}, {140, 860}, {860, 900});
+    Road road2(2, {860, 880}, {{880, 860}}, {860, 860}, {900, 900});
+    Road road3(3, {880, 860}, {{880, 140}}, {860, 140}, {900, 860});
+    Road road4(4, {880, 140}, {{860, 120}}, {860, 100}, {900, 140});
+    Road road5(5, {860, 120}, {{140, 120}}, {140, 100}, {860, 140});
+    Road road6(6, {140, 120}, {{120, 140}}, {100, 100}, {140, 140});
+    Road road7(7, {120, 140}, {{120, 860}}, {100, 140}, {140, 860});
+    std::vector<Road> roads = {road0, road1, road2, road3, road4, road5, road6, road7};
     Map worldMap(1000, 1000, roads);
     // Export road data to a csv file so that we can read it in in Python
     if (export_data) {worldMap.writeRoadsToCSV("../visual/road_data.csv");}
@@ -43,22 +51,22 @@ int main() {
     // Setup Car Objects
     Car car1(nullptr);  // nullptr for first car
     /* Car car3(&car2); */
-    car1.x = 200;  // Initial position
-    car1.y = 500;
-    car1.v = car1._kmhtoms(150);
-    car1.d = {1.0, 0.0};
+    car1.x = 600;  // Initial position
+    car1.y = 880;
+    car1.v = car1.kmhtoms(150);
+    car1.currentRoad = &road1;
 
     Car car2(&car1);
-    car2.x = 100;  // Initial position
-    car2.y = 500;
-    car2.v = car2._kmhtoms(120);
-    car2.d = {1.0, 0.0};
+    car2.x = 140;  // Initial position
+    car2.y = 120;
+    car2.v = car2.kmhtoms(150);
+    car2.currentRoad = &road5;
 
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
         t += dt;  // Keep track of overall time elapsed
-        car1.update();
-        car2.update();
+        car1.update(worldMap.roads, worldMap.roadSourceMap);
+        car2.update(worldMap.roads, worldMap.roadSourceMap);
     }
 
     worldMap.cars.push_back(car1);
