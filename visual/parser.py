@@ -25,8 +25,7 @@ def get_car_paths_from_csv(car_csv_file):
         car_path = []
         for val in values:
             str_list = val.split(',')
-            car_path.append(((float(str_list[0]), float(str_list[1])),
-                             (float(str_list[2]), float(str_list[3]))))
+            car_path.append(((float(str_list[0]), float(str_list[1])), float(str_list[2])))
         car_paths.append(car_path)
 
     return car_paths
