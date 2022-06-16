@@ -49,13 +49,13 @@ int main() {
     /* Car car3(&car2); */
     car1.x = 600;  // Initial position
     car1.y = 880;
-    car1.v = car1.kmhtoms(100);
+    car1.v = car1.kmhtoms(20);
     car1.currentRoad = &road1;
 
     Car car2(&car1);
     car2.x = 140;  // Initial position
     car2.y = 120;
-    car2.v = car2.kmhtoms(20);
+    car2.v = car2.kmhtoms(120);
     car2.currentRoad = &road5;
 
     Car car3(&car2);

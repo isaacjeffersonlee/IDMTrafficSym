@@ -13,8 +13,8 @@
    width="20"
    height="50"
    viewBox="0 0 20 50"
-   sodipodi:docname="basic_car.png.svg"
-   inkscape:export-filename="/home/isaac/Projects/PyTrafficSym/basic_car.png"
+   sodipodi:docname="basic_car.svg"
+   inkscape:export-filename="/home/isaac/Projects/IDMTrafficSym/visual/car4.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
@@ -26,7 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -74,13 +74,14 @@
      inkscape:window-height="1128"
      id="namedview887"
      showgrid="false"
-     inkscape:zoom="6.3219982"
-     inkscape:cx="54.8816"
-     inkscape:cy="31.057684"
+     inkscape:zoom="12.643996"
+     inkscape:cx="34.582492"
+     inkscape:cy="22.819932"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g893" />
+     inkscape:current-layer="g893"
+     inkscape:document-rotation="0" />
   <g
      inkscape:groupmode="layer"
      inkscape:label="Image"
@@ -89,21 +90,18 @@
        width="20"
        height="50"
        preserveAspectRatio="none"
-       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAyCAYAAABcfPsmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAA
-GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAACxJREFUSIntzDEBAAAIA6Bp/85a
-wNMTAlBJJo/6MxMKhUKhUCgUCoVCoVB4W+YWAWNGahUzAAAAAElFTkSuQmCC
-"
-       id="image895" />
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:4.36428;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
-       id="rect938"
-       width="1.7635884"
-       height="27.797436"
-       x="9.2100754"
-       y="13.354212" />
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAyCAYAAABcfPsmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAA GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAACxJREFUSIntzDEBAAAIA6Bp/85a wNMTAlBJJo/6MxMKhUKhUCgUCoVCoVB4W+YWAWNGahUzAAAAAElFTkSuQmCC "
+       id="image895"
+       style="fill:#ff6600;fill-opacity:1" />
     <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1.37952757;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:12.1;stroke-dasharray:none"
        d="M 3.791325,17.565155 16.688997,17.715301 10.099902,7.2903918 Z"
        id="path1224" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0.948768;stroke-linecap:round;stroke-linejoin:round;paint-order:fill markers stroke"
+       d="M 0.15206844,24.967837 V 0.05482797 H 10.038183 19.924298 V 24.967837 49.880847 H 10.038183 0.15206844 Z M 17.479055,17.837577 C 17.33213,17.613341 15.678965,14.997476 13.805352,12.024542 11.93174,9.0516085 10.317649,6.5331838 10.218484,6.4280429 10.081052,6.2823296 9.1919828,7.615208 6.4791819,12.033944 c -1.9574507,3.188386 -3.581908,5.852227 -3.609905,5.919646 -0.065487,0.157695 2.0163024,0.21658 9.1247771,0.258095 l 5.752138,0.03359 z"
+       id="path857"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>

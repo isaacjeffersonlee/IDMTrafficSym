@@ -37,12 +37,14 @@ def main():
 
     clock = pygame.time.Clock()
 
+    # Car image paths
+    car_imgs = [f"car{i+1}.png" for i in range(4)]
     # Read in car path data
     car_paths = parser.get_car_paths_from_csv("car_data.csv")
     # Initialize Car objects
     cars = []
-    for path in car_paths:
-        car = Car(x0=path[0][0][0], y0=path[0][0][1], img_path="basic_car.png")
+    for idx, path in enumerate(car_paths):
+        car = Car(x0=path[0][0][0], y0=path[0][0][1], img_path=car_imgs[idx])
         cars.append(car)
 
     # Read in road data
