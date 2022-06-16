@@ -16,9 +16,9 @@ int totalFrameNum = simTime / dt;  // Total number of frames
 // Still to Implement
 // TODO: Intersections with Traffic Lights
 // TODO: Random car spawning
+// TODO: Better README
 
 // Improvements:
-// - Pastel colour cars
 // - Refactor code
 // - MOBIL Lane changing
 // - More layouts
@@ -43,38 +43,38 @@ int main() {
     Map worldMap(1000, 1000, roads);
     // Export road data to a csv file so that we can read it in in Python
     if (export_data) {worldMap.writeRoadsToCSV("../visual/road_data.csv");}
-    
+
     // Setup Car Objects
-    Car car1(nullptr);  // nullptr for first car
+    Car car0(nullptr);  // nullptr for first car
     /* Car car3(&car2); */
-    car1.x = 600;  // Initial position
-    car1.y = 880;
-    car1.v = car1.kmhtoms(20);
-    car1.currentRoad = &road1;
+    car0.x = 600;  // Initial position
+    car0.y = 880;
+    car0.v = car0.kmhtoms(20);
+    car0.currentRoad = &road1;
+
+    Car car1(&car0);
+    car1.x = 140;  // Initial position
+    car1.y = 120;
+    car1.v = car1.kmhtoms(120);
+    car1.currentRoad = &road5;
 
     Car car2(&car1);
-    car2.x = 140;  // Initial position
+    car2.x = 500;  // Initial position
     car2.y = 120;
-    car2.v = car2.kmhtoms(120);
+    car2.v = car2.kmhtoms(150);
     car2.currentRoad = &road5;
-
-    Car car3(&car2);
-    car3.x = 500;  // Initial position
-    car3.y = 120;
-    car3.v = car2.kmhtoms(150);
-    car3.currentRoad = &road5;
 
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
         t += dt;  // Keep track of overall time elapsed
+        car0.update(worldMap.roads, worldMap.roadSourceMap);
         car1.update(worldMap.roads, worldMap.roadSourceMap);
         car2.update(worldMap.roads, worldMap.roadSourceMap);
-        car3.update(worldMap.roads, worldMap.roadSourceMap);
     }
 
+    worldMap.cars.push_back(car0);
     worldMap.cars.push_back(car1);
     worldMap.cars.push_back(car2);
-    worldMap.cars.push_back(car3);
 
     if (export_data) {worldMap.writeCarsToCSV("../visual/car_data.csv");}
     return 0;
