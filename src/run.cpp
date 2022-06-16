@@ -14,8 +14,6 @@ float simTime = 60; // Simulation time in seconds
 int totalFrameNum = simTime / dt;  // Total number of frames
 
 // Still to Implement
-// TODO: IDM equations
-// TODO: Collision detection
 // TODO: Intersections with Traffic Lights
 // TODO: Random car spawning
 
@@ -30,8 +28,6 @@ int totalFrameNum = simTime / dt;  // Total number of frames
 
 // Note: We are assuming 10px == 1m irl
 
-typedef std::array<int, 2> intCoord;
-typedef std::array<float, 2> floatCoord;
 
 int main() {
     // Setup our road layout
@@ -53,25 +49,39 @@ int main() {
     /* Car car3(&car2); */
     car1.x = 600;  // Initial position
     car1.y = 880;
-    car1.v = car1.kmhtoms(150);
+    car1.v = car1.kmhtoms(100);
     car1.currentRoad = &road1;
 
     Car car2(&car1);
     car2.x = 140;  // Initial position
     car2.y = 120;
-    car2.v = car2.kmhtoms(150);
+    car2.v = car2.kmhtoms(20);
     car2.currentRoad = &road5;
+
+    Car car3(&car2);
+    car3.x = 500;  // Initial position
+    car3.y = 120;
+    car3.v = car2.kmhtoms(150);
+    car3.currentRoad = &road5;
 
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
         t += dt;  // Keep track of overall time elapsed
         car1.update(worldMap.roads, worldMap.roadSourceMap);
         car2.update(worldMap.roads, worldMap.roadSourceMap);
+        car3.update(worldMap.roads, worldMap.roadSourceMap);
     }
 
     worldMap.cars.push_back(car1);
     worldMap.cars.push_back(car2);
+    worldMap.cars.push_back(car3);
 
     if (export_data) {worldMap.writeCarsToCSV("../visual/car_data.csv");}
     return 0;
 }
+
+// For testing
+/* int main() { */
+/*     std::cout << bearing({0.0f, 0.0f}, {-0.70107f, 0.707107f}) << std::endl; */
+/*     return 0; */
+/* } */
