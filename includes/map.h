@@ -8,8 +8,6 @@
 #include <vector>
 #include <map>
 
-typedef std::array<int, 2> intCoord;
-typedef std::array<float, 2> floatCoord;
 
 class Map {
     public:
@@ -17,7 +15,7 @@ class Map {
         int height;
         std::vector<Road> roads;
         std::vector<Car> cars;
-        std::map<intCoord, int> roadSourceMap;  // Map of source coords to road uniqueID
+        std::map<std::array<int, 2>, int> roadSourceMap;  // Map of source coords to road uniqueID
         // Each road is uniquely defined by it's source coordinates because
         // for our model, two roads cannot have the same source coordinates.
         Map(int mapWidth, int mapHeight, 
@@ -31,13 +29,13 @@ class Map {
         }
 
         // Convert a std::array<int, 2> {i, j} to a string of the form "[i, j]"
-        std::string _arrToPyListString(intCoord intArr) {
+        std::string _arrToPyListString(std::array<int, 2> intArr) {
             std::string pyListString = '[' + std::to_string(intArr[0]) + ',' + 
                 std::to_string(intArr[1]) + ']';
             return pyListString;
         }
 
-        std::string _arrToPyListString(floatCoord floatArr) {
+        std::string _arrToPyListString(std::array<float, 2> floatArr) {
             std::string pyListString = '[' + std::to_string(floatArr[0]) + ',' + 
                 std::to_string(floatArr[1]) + ']';
             return pyListString;
@@ -87,7 +85,8 @@ class Map {
             for (int i = 0; i < totalFrameNum; i++) {
                 for (Car c : cars) {
                     carFile << c.carPos[i][0] << ',' << c.carPos[i][1] <<
-                        ',' << c.carDir[i][0] << ',' << c.carDir[i][1] << ';';
+                        /* ',' << c.carDir[i][0] << ',' << c.carDir[i][1] << */ 
+                        ',' << c.carAngle[i] << ';';
                 }
                 carFile << '\n';
             }
