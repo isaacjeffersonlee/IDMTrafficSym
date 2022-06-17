@@ -22,20 +22,26 @@ class Road {
         // Note: for intersections we can have multiple sinks, so we store them
         // in a vector and loop over the possible sinks each time step.
         int currentSinkIdx = 0; // Idx of the currently active sink
-        Road(int roadUniqueID, std::array<int, 2> roadSource, std::vector<std::array<int, 2>> roadSinks,
-                std::array<int, 2> roadTopLeft, std::array<int, 2> roadBottomRight) {
-            uniqueID = roadUniqueID;
-            source = roadSource;
-            sinks = roadSinks;
+        Road(int uniqueID,
+                std::array<int, 2> source,
+                std::vector<std::array<int, 2>> sinks,
+                std::array<int, 2> topLeft,
+                std::array<int, 2> bottomRight)
+            : uniqueID(uniqueID)
+            , source(source)
+            , sinks(sinks)
+            , topLeft(topLeft)
+            , bottomRight(bottomRight)
+        {
             sink = sinks[currentSinkIdx];
             // Note: negative y because coordinates upside down.
             std::array<int, 2> unscaledFlowDir = {sink[0]-source[0], -(sink[1]-source[1])};
             flowDir = {(1/norm(unscaledFlowDir))*unscaledFlowDir[0],
             (1/norm(unscaledFlowDir))*unscaledFlowDir[1]};
-            topLeft[0] = roadTopLeft[0];
-            topLeft[1] = roadTopLeft[1];
-            bottomRight[0] = roadBottomRight[0];
-            bottomRight[1] = roadBottomRight[1];
+            /* topLeft[0] = pTopLeft[0]; */
+            /* topLeft[1] = pTopLeft[1]; */
+            /* bottomRight[0] = pBottomRight[0]; */
+            /* bottomRight[1] = pBottomRight[1]; */
         }
         void updateSink() {
             sink = sinks[currentSinkIdx];

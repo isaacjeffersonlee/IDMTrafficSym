@@ -18,11 +18,14 @@ class Map {
         std::map<std::array<int, 2>, int> roadSourceMap;  // Map of source coords to road uniqueID
         // Each road is uniquely defined by it's source coordinates because
         // for our model, two roads cannot have the same source coordinates.
-        Map(int mapWidth, int mapHeight, 
-                std::vector<Road> mapRoads) {
-            width = mapWidth;
-            height = mapHeight;
-            roads = mapRoads;  // Coordtor containing all road objects for the map
+
+        Map(int width,
+                int height, 
+                std::vector<Road> roads)
+            : width(width)
+            , height(height)
+            , roads(roads)
+        {
             for (Road r: roads) {
                 roadSourceMap[r.source] = r.uniqueID;
             }
@@ -54,32 +57,8 @@ class Map {
             std::cout << "Successfully wrote map to " << fileName << std::endl;
             mapFile.close();
         }
-        // Write the map data to a python file with given fileName
-        /* void writeMaptoPyFile(std::string fileName) { */
-        /*     std::ofstream mapFile(fileName); */
-        /*     mapFile << "map_width = " << width << '\n'; */
-        /*     mapFile << "map_height = " << height << '\n'; */
-        /*     mapFile << "road_number = " << roads.size() << '\n'; */
-        /*     for (Road r : roads) { */
-        /*         mapFile << "# ---------------------------------------------\n"; */
-        /*         mapFile << "length" << r.uniqueID << " = " << r.length << '\n'; */
-        /*         mapFile << "orient" << r.uniqueID << " = " << '"' << r.orient << */
-        /*             '"'<< '\n'; */
-        /*         mapFile << "source" << r.uniqueID << " = " << */
-        /*             '[' << r.source[0] << ", " << r.source[1] << ']' << '\n'; */
-        /*         mapFile << "sink" << r.uniqueID << " = " << */
-        /*             '[' << r.sink[0] << ", " << r.source[1] << ']' << '\n'; */
-        /*         mapFile << "flow_dir" << r.uniqueID << " = " << '"' << */
-        /*             r.flowDir << '"'<< '\n'; */
-        /*         mapFile << "top_left" << r.uniqueID << " = " << */
-        /*             '[' << r.topLeft[0] << ", " << r.topLeft[1] << ']' << '\n'; */
-        /*         mapFile << "bottom_right" << r.uniqueID << " = " << */
-        /*             '[' << r.bottomRight[0] << ", " << r.bottomRight[1] << */
-        /*             ']' << '\n'; */
-        /*     } */
-        /*     std::cout << "Successfully wrote roads to " << fileName << std::endl; */
-        /*     mapFile.close(); */
-        /* } */
+        // Save the cars position and angle information for each time frame
+        // for each car to a csv file.
         void writeCarsToCSV(std::string fileName) {
             std::ofstream carFile(fileName);
             for (int i = 0; i < totalFrameNum; i++) {
@@ -93,5 +72,4 @@ class Map {
             std::cout << "Successfully wrote cars to " << fileName << std::endl;
             carFile.close();
         }
-
 };

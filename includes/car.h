@@ -48,30 +48,32 @@ class Car {
         // the direction of the car at frame i
         std::vector<float> carAngle; // ith entry is the 
         // compass bearing in degrees of the car at time i
-        Car* nextCar;     // Car ahead
+        Car *pNextCar;     // Car ahead
         bool isFirst = false;     // Is this car the first car?
 
-        // Helper function to convert speed from km/h to m/s
-        float kmhtoms(float speedKmh) {return (speedKmh * 1000) / 3600;}
-
-        Car(Car* firstCar) {
-            nextCar = firstCar;
-            if (!firstCar) {
+        Car(Car* pNextCar) : pNextCar(pNextCar) 
+        {
+            if (!pNextCar) {
                 isFirst = true;
                 v = v0;
             }
         }
-        // Return the difference in speeds for the car and the nextCar
+
+        // Helper function to convert speed from km/h to m/s
+        float kmhtoms(float speedKmh) {return (speedKmh * 1000) / 3600;}
+        // Return the difference in speeds for the car and the pNextCar
+
         float getApproachRate() {
             float delta_v;
             if (isFirst) {
                 delta_v = v0;
             }
             else {
-                delta_v = v - (nextCar->v);
+                delta_v = v - (pNextCar->v);
             }
             return delta_v;
         }
+
         // Return the bumper to bumper distance in px
         // Assumes cars have same orientation
         float getBumperDistance() {
@@ -79,9 +81,10 @@ class Car {
                 return 5000.0f;
             }
             else {  // First car
-                float center_diff = std::hypot(nextCar->x - x, nextCar->y - y);
+                float center_diff = std::hypot(pNextCar->x - x, pNextCar->y - y);
                 return std::max(center_diff - (l * 10), 0.0f);  // Account for length of car
             }
+
         }
 
         // Return the dvdt, i.e the acceleration for the current frame.

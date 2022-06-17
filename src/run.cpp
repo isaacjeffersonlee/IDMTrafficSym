@@ -49,7 +49,7 @@ int main() {
     /* Car car3(&car2); */
     car0.x = 600;  // Initial position
     car0.y = 880;
-    car0.v = car0.kmhtoms(20);
+    car0.v = car0.kmhtoms(40);
     car0.currentRoad = &road1;
 
     Car car1(&car0);
