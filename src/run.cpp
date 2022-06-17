@@ -4,14 +4,15 @@
 #include <array>
 #include "../includes/road.h"
 #include "../includes/car.h"
-#include "../includes/map.h"
+#include "../includes/world.h"
 #include "../includes/common.h"
+#include "../includes/exporter.h"
 
-float fps = 50.0;    // Frames per second
-float dt = 1 / fps;  // Time between frames
-bool export_data = true;
-float simTime = 60; // Simulation time in seconds
-int totalFrameNum = simTime / dt;  // Total number of frames
+float fps = 50.0;                   // Frames per second
+float dt = 1 / fps;                 // Time between frames
+bool export_data = true;            // Set false to prevent writing to files
+float simTime = 60;                 // Simulation time in seconds
+int totalFrameNum = simTime / dt;   // Total number of frames
 
 // Still to Implement
 // TODO: Intersections with Traffic Lights
@@ -19,7 +20,10 @@ int totalFrameNum = simTime / dt;  // Total number of frames
 // TODO: Better README
 
 // Improvements:
-// - Refactor code
+// - Color changing depending on speed
+// - Printing parameter values
+// - More dynamic method for spawing road layouts
+// - Read parameters from json/YAML
 // - MOBIL Lane changing
 // - More layouts
 
@@ -40,9 +44,12 @@ int main() {
     Road road6(6, {140, 120}, {{120, 140}}, {100, 100}, {140, 140});
     Road road7(7, {120, 140}, {{120, 860}}, {100, 140}, {140, 860});
     std::vector<Road> roads = {road0, road1, road2, road3, road4, road5, road6, road7};
-    Map worldMap(1000, 1000, roads);
+    World world(1000, 1000, roads);
+
+    // Initialize our exporter object
+    Exporter e = Exporter(true);
     // Export road data to a csv file so that we can read it in in Python
-    if (export_data) {worldMap.writeRoadsToCSV("../visual/road_data.csv");}
+    e.writeRoadsToCSV("../visual/road_data.csv", roads);
 
     // Setup Car Objects
     Car car0(nullptr);  // nullptr for first car
@@ -67,16 +74,16 @@ int main() {
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
         t += dt;  // Keep track of overall time elapsed
-        car0.update(worldMap.roads, worldMap.roadSourceMap);
-        car1.update(worldMap.roads, worldMap.roadSourceMap);
-        car2.update(worldMap.roads, worldMap.roadSourceMap);
+        car0.update(world.roads, world.roadSourceMap);
+        car1.update(world.roads, world.roadSourceMap);
+        car2.update(world.roads, world.roadSourceMap);
     }
 
-    worldMap.cars.push_back(car0);
-    worldMap.cars.push_back(car1);
-    worldMap.cars.push_back(car2);
+    world.cars.push_back(car0);
+    world.cars.push_back(car1);
+    world.cars.push_back(car2);
 
-    if (export_data) {worldMap.writeCarsToCSV("../visual/car_data.csv");}
+    e.writeCarsToCSV("../visual/car_data.csv", world.cars);
     return 0;
 }
 

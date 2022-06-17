@@ -26,6 +26,7 @@ float bearing(std::array<float, 2> a, std::array<float, 2> b) {
 
 
 class Car {
+
     public:
         // Model params
         float v0 = (120.0 * 1000) / 3600; // Desired speed in m/s
@@ -36,7 +37,6 @@ class Car {
         float s0 = 1;     // Jam Distance
         int l = 5;        // Vehicle length
         Road* currentRoad; // Road the car is currently driving along
-
         // Positional attributes 
         float v = 0.0;    // Speed at time t, in m/s
         std::array<float, 2> d;       // Direction/orientation at time t, scaled s.t |d| == 1

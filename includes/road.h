@@ -11,6 +11,7 @@ float norm(std::array<int, 2> v) {
 }
 
 class Road {
+
     public:
         int uniqueID;
         std::array<float, 2> flowDir;  // Scaled to have length 1
@@ -22,6 +23,7 @@ class Road {
         // Note: for intersections we can have multiple sinks, so we store them
         // in a vector and loop over the possible sinks each time step.
         int currentSinkIdx = 0; // Idx of the currently active sink
+
         Road(int uniqueID,
                 std::array<int, 2> source,
                 std::vector<std::array<int, 2>> sinks,
@@ -33,6 +35,7 @@ class Road {
             , topLeft(topLeft)
             , bottomRight(bottomRight)
         {
+
             sink = sinks[currentSinkIdx];
             // Note: negative y because coordinates upside down.
             std::array<int, 2> unscaledFlowDir = {sink[0]-source[0], -(sink[1]-source[1])};
@@ -43,6 +46,7 @@ class Road {
             /* bottomRight[0] = pBottomRight[0]; */
             /* bottomRight[1] = pBottomRight[1]; */
         }
+
         void updateSink() {
             sink = sinks[currentSinkIdx];
         }
