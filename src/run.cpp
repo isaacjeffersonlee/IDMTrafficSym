@@ -49,7 +49,7 @@ int main() {
     // Initialize our exporter object
     Exporter e = Exporter(true);
     // Export road data to a csv file so that we can read it in in Python
-    e.writeRoadsToCSV("../visual/road_data.csv", roads);
+    e.writeRoadsToCSV("../visual/data/road_data.csv", roads);
 
     // Setup Car Objects
     Car car0(nullptr);  // nullptr for first car
@@ -57,19 +57,19 @@ int main() {
     car0.x = 600;  // Initial position
     car0.y = 880;
     car0.v = car0.kmhtoms(40);
-    car0.currentRoad = &road1;
+    car0.pCurrentRoad = &road1;
 
     Car car1(&car0);
     car1.x = 140;  // Initial position
     car1.y = 120;
     car1.v = car1.kmhtoms(120);
-    car1.currentRoad = &road5;
+    car1.pCurrentRoad = &road5;
 
     Car car2(&car1);
     car2.x = 500;  // Initial position
     car2.y = 120;
     car2.v = car2.kmhtoms(150);
-    car2.currentRoad = &road5;
+    car2.pCurrentRoad = &road5;
 
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
@@ -83,7 +83,7 @@ int main() {
     world.cars.push_back(car1);
     world.cars.push_back(car2);
 
-    e.writeCarsToCSV("../visual/car_data.csv", world.cars);
+    e.writeCarsToCSV("../visual/data/car_data.csv", world.cars);
     return 0;
 }
 

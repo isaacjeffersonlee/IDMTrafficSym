@@ -6,6 +6,7 @@ import pandas as pd
 SCREEN_HEIGHT, SCREEN_WIDTH = 1000, 1000
 FPS = 50
 SIM_TIME = 60  # Simulation time in seconds
+dt = 1/FPS  # Number of seconds that pass between frames
 
 
 class Car(pygame.sprite.Sprite):
@@ -38,9 +39,9 @@ def main():
     clock = pygame.time.Clock()
 
     # Car image paths
-    car_imgs = [f"car{i+1}.png" for i in range(4)]
+    car_imgs = [f"images/car{i+1}.png" for i in range(4)]
     # Read in car path data
-    car_paths = parser.get_car_paths_from_csv("car_data.csv")
+    car_paths = parser.get_car_paths_from_csv("data/car_data.csv")
     # Initialize Car objects
     cars = []
     for idx, path in enumerate(car_paths):
@@ -48,11 +49,10 @@ def main():
         cars.append(car)
 
     # Read in road data
-    road_data_df = pd.read_csv("road_data.csv", sep=';')
+    road_data_df = pd.read_csv("data/road_data.csv", sep=';')
 
     running = True
     i = 0
-    dt = 1/FPS  # Number of seconds that pass between frames
     t = 0
     while running:
         clock.tick(FPS)

@@ -36,7 +36,7 @@ class Car {
         int delta = 4;    // Acceleration exponent
         float s0 = 1;     // Jam Distance
         int l = 5;        // Vehicle length
-        Road* currentRoad; // Road the car is currently driving along
+        Road* pCurrentRoad; // Road the car is currently driving along
         // Positional attributes 
         float v = 0.0;    // Speed at time t, in m/s
         std::array<float, 2> d;       // Direction/orientation at time t, scaled s.t |d| == 1
@@ -104,12 +104,12 @@ class Car {
         void update(std::vector<Road> roads, std::map<std::array<int, 2>, int> roadSourceMap) {
             float eps = v * 10 * dt;
             // If sufficiently close to the sink coordinate
-            if (std::hypot(currentRoad->sink[0] - x, currentRoad->sink[1] - y) < eps) {
-                currentRoad = &roads[roadSourceMap[currentRoad->sink]];
-                x = currentRoad->source[0];
-                y = currentRoad->source[1];
+            if (std::hypot(pCurrentRoad->sink[0] - x, pCurrentRoad->sink[1] - y) < eps) {
+                pCurrentRoad = &roads[roadSourceMap[pCurrentRoad->sink]];
+                x = pCurrentRoad->source[0];
+                y = pCurrentRoad->source[1];
             }
-            d = currentRoad->flowDir;  // Set the direction of the car to the
+            d = pCurrentRoad->flowDir;  // Set the direction of the car to the
             angle = std::ceil(bearing({0.0f, 0.0f}, d));
             // flow direction of the current road.
             float distToNext = getBumperDistance();
