@@ -15,7 +15,7 @@ class World {
         int width;
         int height;
         std::vector<Road> roads;
-        std::vector<Car> cars;
+        std::vector<Car *> pCars;
         std::map<std::array<int, 2>, int> roadSourceMap;  // Map of source coords to road uniqueID
         // Each road is uniquely defined by it's source coordinates because
         // for our model, two roads cannot have the same source coordinates.
@@ -33,8 +33,16 @@ class World {
         }
 
         void updateWorld() {
-           for (Car &car: cars) {
-               car.update(roads, roadSourceMap);
+           for (Car* pCar : pCars) {
+               pCar->update(roads, roadSourceMap);
            } 
+        }
+
+        // Cleanup
+        void deleteObjects() {
+            for (Car* pCar : pCars) {
+                delete pCar;
+            }
+            std::cout << "Deleted Objects." << std::endl;
         }
 };

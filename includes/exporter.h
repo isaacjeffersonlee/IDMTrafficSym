@@ -39,20 +39,20 @@ class Exporter {
             }
         }
 
-        // Save the cars position and angle information for each time frame
+        // Save the pCars position and angle information for each time frame
         // for each car to a csv file.
-        void writeCarsToCSV(std::string fileName, std::vector<Car> cars) {
+        void writeCarsToCSV(std::string fileName, std::vector<Car *> pCars) {
             if (exportData) {
                 std::ofstream carFile(fileName);
                 for (int i = 0; i < totalFrameNum; i++) {
-                    for (Car c : cars) {
-                        carFile << c.carPos[i][0] << ',' << c.carPos[i][1] <<
+                    for (Car* pCar : pCars) {
+                        carFile << pCar->carPos[i][0] << ',' << pCar->carPos[i][1] <<
                             /* ',' << c.carDir[i][0] << ',' << c.carDir[i][1] << */ 
-                            ',' << c.carAngle[i] << ';';
+                            ',' << pCar->carAngle[i] << ';';
                     }
                     carFile << '\n';
                 }
-                std::cout << "Successfully wrote cars to " << fileName << std::endl;
+                std::cout << "Successfully wrote pCars to " << fileName << std::endl;
                 carFile.close();
             }
         }

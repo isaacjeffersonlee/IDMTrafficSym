@@ -52,38 +52,39 @@ int main() {
     e.writeRoadsToCSV("../visual/data/road_data.csv", roads);
 
     // Setup Car Objects
-    Car car0(nullptr);  // nullptr for first car
-    /* Car car3(&car2); */
-    car0.x = 600;  // Initial position
-    car0.y = 880;
-    car0.v = car0.kmhtoms(40);
-    car0.pCurrentRoad = &road1;
+    Car* pCar0 = new Car(nullptr);  // nullptr for first car
+    /* Car car3(&pCar2); */
+    pCar0->x = 600;  // Initial position
+    pCar0->y = 880;
+    pCar0->v = pCar0->kmhtoms(40);
+    pCar0->pCurrentRoad = &road1;
 
-    Car car1(&car0);
-    car1.x = 140;  // Initial position
-    car1.y = 120;
-    car1.v = car1.kmhtoms(120);
-    car1.pCurrentRoad = &road5;
+    Car* pCar1 = new Car(pCar0);
+    pCar1->x = 140;  // Initial position
+    pCar1->y = 120;
+    pCar1->v = pCar1->kmhtoms(120);
+    pCar1->pCurrentRoad = &road5;
 
-    Car car2(&car1);
-    car2.x = 500;  // Initial position
-    car2.y = 120;
-    car2.v = car2.kmhtoms(150);
-    car2.pCurrentRoad = &road5;
+    Car* pCar2 = new Car(pCar1);
+    pCar2->x = 500;  // Initial position
+    pCar2->y = 120;
+    pCar2->v = pCar2->kmhtoms(150);
+    pCar2->pCurrentRoad = &road5;
+
+
+    world.pCars.push_back(pCar0);
+    world.pCars.push_back(pCar1);
+    world.pCars.push_back(pCar2);
 
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
         t += dt;  // Keep track of overall time elapsed
-        car0.update(world.roads, world.roadSourceMap);
-        car1.update(world.roads, world.roadSourceMap);
-        car2.update(world.roads, world.roadSourceMap);
+        world.updateWorld();
     }
 
-    world.cars.push_back(car0);
-    world.cars.push_back(car1);
-    world.cars.push_back(car2);
+    e.writeCarsToCSV("../visual/data/car_data.csv", world.pCars);
+    world.deleteObjects();
 
-    e.writeCarsToCSV("../visual/data/car_data.csv", world.cars);
     return 0;
 }
 
