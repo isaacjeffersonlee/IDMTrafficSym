@@ -14,19 +14,6 @@ bool export_data = true;            // Set false to prevent writing to files
 float simTime = 60;                 // Simulation time in seconds
 int totalFrameNum = simTime / dt;   // Total number of frames
 
-// Still to Implement
-// TODO: Intersections with Traffic Lights
-//   TODO: Add multiple sources and rethink the sourceMap idea
-// TODO: Random car spawning
-// TODO: Better README
-
-// Improvements:
-// - Color changing depending on speed
-// - Printing parameter values
-// - More dynamic method for spawing pRoad layouts
-// - Read parameters from json/YAML
-// - MOBIL Lane changing
-// - More layouts
 
 // For lane change MOBIL model
 // https://traffic-simulation.de/info/info_MOBIL.html
