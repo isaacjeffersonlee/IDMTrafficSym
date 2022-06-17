@@ -3,7 +3,7 @@
 #include <vector>
 #include <array>
 #include <cmath>
-#include "../includes/common.h"
+#include "../includes/common.hh"
 
 
 float norm(std::array<int, 2> v) {
@@ -23,17 +23,20 @@ class Road {
         // Note: for intersections we can have multiple sinks, so we store them
         // in a vector and loop over the possible sinks each time step.
         int currentSinkIdx = 0; // Idx of the currently active sink
+        bool isIntersection = false;
 
         Road(int uniqueID,
                 std::array<int, 2> source,
                 std::vector<std::array<int, 2>> sinks,
                 std::array<int, 2> topLeft,
-                std::array<int, 2> bottomRight)
+                std::array<int, 2> bottomRight,
+                bool isIntersection)
             : uniqueID(uniqueID)
             , source(source)
             , sinks(sinks)
             , topLeft(topLeft)
             , bottomRight(bottomRight)
+            , isIntersection(isIntersection)
         {
 
             sink = sinks[currentSinkIdx];
@@ -47,7 +50,11 @@ class Road {
             /* bottomRight[1] = pBottomRight[1]; */
         }
 
-        void updateSink() {
-            sink = sinks[currentSinkIdx];
+        // Update the state of the traffic lights.
+        void updateLights() {
+            if (isIntersection) {
+                currentSinkIdx = (currentSinkIdx + 1) % sinks.size();
+                sink = sinks[currentSinkIdx];
+            }
         }
 };

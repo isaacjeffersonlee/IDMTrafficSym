@@ -1,7 +1,9 @@
 #include <fstream>
+#include <string>
 #include <array>
 #include <vector>
-#include "../includes/common.h"
+#include "../includes/common.hh"
+
 
 class Exporter {
 
@@ -24,15 +26,15 @@ class Exporter {
         }
 
         // Write the map data to a csv file with given fileName
-        void writeRoadsToCSV(std::string fileName, std::vector<Road> roads) {
+        void writeRoadsToCSV(std::string fileName, std::vector<Road *> pRoads) {
             if (exportData) {
                 std::ofstream mapFile(fileName);
                 // Road class attributes for column names
                 mapFile << "uniqueID;flowDir;topLeft;bottomRight\n";
-                for(Road r : roads) {
-                    mapFile << r.uniqueID << ';' << _arrToPyListString(r.flowDir) <<
-                        ';' << _arrToPyListString(r.topLeft) << ';' <<
-                        _arrToPyListString(r.bottomRight) << '\n';
+                for(Road* pRoad : pRoads) {
+                    mapFile << pRoad->uniqueID << ';' << _arrToPyListString(pRoad->flowDir) <<
+                        ';' << _arrToPyListString(pRoad->topLeft) << ';' <<
+                        _arrToPyListString(pRoad->bottomRight) << '\n';
                 }
                 std::cout << "Successfully wrote map to " << fileName << std::endl;
                 mapFile.close();

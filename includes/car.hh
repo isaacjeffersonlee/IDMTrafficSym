@@ -3,7 +3,7 @@
 #include <array>
 #include <cmath>
 #include <map>
-#include "../includes/common.h"
+#include "../includes/common.hh"
 
 #define PI 3.14159265f
 
@@ -101,11 +101,11 @@ class Car {
         }
 
         // Update position and direction of the car
-        void update(std::vector<Road> roads, std::map<std::array<int, 2>, int> roadSourceMap) {
+        void update(std::vector<Road *> pRoads, std::map<std::array<int, 2>, int> roadSourceMap) {
             float eps = v * 10 * dt;
             // If sufficiently close to the sink coordinate
             if (std::hypot(pCurrentRoad->sink[0] - x, pCurrentRoad->sink[1] - y) < eps) {
-                pCurrentRoad = &roads[roadSourceMap[pCurrentRoad->sink]];
+                pCurrentRoad = pRoads[roadSourceMap[pCurrentRoad->sink]];
                 x = pCurrentRoad->source[0];
                 y = pCurrentRoad->source[1];
             }
