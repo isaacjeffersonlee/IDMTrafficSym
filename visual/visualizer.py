@@ -1,6 +1,7 @@
 import pygame
 import math
 import parser
+import drawer
 import pandas as pd
 
 SCREEN_HEIGHT, SCREEN_WIDTH = 1000, 1000
@@ -51,6 +52,8 @@ def main():
     # Read in road data
     road_data_df = pd.read_csv("data/road_data.csv", sep=';')
 
+    # Read in traffic light data
+    sources, sinks = parser.get_light_coords_from_csv("data/light_data.csv")
     running = True
     i = 0
     t = 0
@@ -66,7 +69,9 @@ def main():
         # Fill the screen with white
         win.fill((255, 255, 255))
         # Draw the map map
-        parser.draw_map_from_csv(win, road_data_df)
+        drawer.draw_map_from_df(win, road_data_df)
+        # Draw traffic lights
+        drawer.draw_lights(win, i, sources, sinks, "#0bda51", "#ea3c53")
         # Update cars angle and positions
         for idx, car in enumerate(cars):
             car.x, car.y = car_paths[idx][i][0]

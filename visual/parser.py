@@ -1,17 +1,4 @@
-import pygame
 import pandas as pd
-import numpy as np
-
-
-def draw_map_from_csv(pygame_window, df):
-    for idx, row in df.iterrows():  # Loop over rows
-        road_color = ((220 - 50*idx) % 255, (220 - 50*idx) %
-                      255, (220 - 50*idx) % 255)
-        top_left = eval(row["topLeft"])
-        road_width = eval(row["bottomRight"])[0] - eval(row["topLeft"])[0]
-        road_height = eval(row["bottomRight"])[1] - eval(row["topLeft"])[1]
-        pygame.draw.rect(pygame_window, road_color,
-                         pygame.Rect(top_left, (road_width, road_height)))
 
 
 def get_car_paths_from_csv(car_csv_file):
@@ -30,7 +17,26 @@ def get_car_paths_from_csv(car_csv_file):
 
     return car_paths
 
+def get_light_coords_from_csv(lights_csv_file):
+    df = pd.read_csv(lights_csv_file, sep=';', header=None)
+    df.drop(columns=df.columns[-1], axis=1,
+            inplace=True)  # Remove the last col
+    all_road_sources = []
+    all_road_sinks = []
+    for road_num, values in df.iteritems():
+        road_sources = []
+        road_sinks = []
+        for val in values:
+            str_list = val.split(',')
+            road_sources.append((int(str_list[0]), int(str_list[1])))
+            road_sinks.append((int(str_list[2]), int(str_list[3])))
+        all_road_sources.append(road_sources)
+        all_road_sinks.append(road_sinks)
+
+    return all_road_sources, all_road_sinks
 
 if __name__ == "__main__":
     # get_car_paths_from_csv("car_data.csv")
-    draw_map_from_csv(0, "road_data.csv")
+    # draw_map_from_csv(0, "road_data.csv")
+    sources, sinks = get_light_coords_from_csv("data/light_data.csv")
+    print(sources[0])
