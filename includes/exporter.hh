@@ -28,19 +28,37 @@ class Exporter {
         // Write the map data to a csv file with given fileName
         void writeRoadsToCSV(std::string fileName, std::vector<Road *> pRoads) {
             if (exportData) {
-                std::ofstream mapFile(fileName);
+                std::ofstream roadFile(fileName);
                 // Road class attributes for column names
-                mapFile << "uniqueID;flowDir;topLeft;bottomRight\n";
+                roadFile << "uniqueID;flowDir;topLeft;bottomRight\n";
                 for(Road* pRoad : pRoads) {
-                    mapFile << pRoad->uniqueID << ';' << _arrToPyListString(pRoad->flowDir) <<
+                    roadFile << pRoad->uniqueID << ';' << _arrToPyListString(pRoad->flowDir) <<
                         ';' << _arrToPyListString(pRoad->topLeft) << ';' <<
                         _arrToPyListString(pRoad->bottomRight) << '\n';
                 }
-                std::cout << "Successfully wrote map to " << fileName << std::endl;
-                mapFile.close();
+                std::cout << "Successfully wrote road data to " << fileName << std::endl;
+                roadFile.close();
             }
         }
 
+        // Write the traffic light coordinate data to a csv file with given fileName
+        void writeTrafficLightsToCSV(std::string fileName, std::vector<Road *> pRoads) {
+            if (exportData) {
+                std::ofstream lightFile(fileName);
+                // Road class attributes for column names
+                for (int i = 0; i < totalFrameNum; i++) {
+                    for (Road* pRoad : pRoads) {
+                        lightFile << pRoad->lightCoords[i][0] << ',' << 
+                        pRoad->lightCoords[i][1] << ',' << 
+                        pRoad->lightCoords[i][2] << ',' << 
+                        pRoad->lightCoords[i][3] << ';';
+                    }
+                    lightFile << '\n';
+                }
+                std::cout << "Successfully wrote lights to " << fileName << std::endl;
+                lightFile.close();
+            }
+        }
         // Save the pCars position and angle information for each time frame
         // for each car to a csv file.
         void writeCarsToCSV(std::string fileName, std::vector<Car *> pCars) {
@@ -54,7 +72,7 @@ class Exporter {
                     }
                     carFile << '\n';
                 }
-                std::cout << "Successfully wrote pCars to " << fileName << std::endl;
+                std::cout << "Successfully wrote car data to " << fileName << std::endl;
                 carFile.close();
             }
         }

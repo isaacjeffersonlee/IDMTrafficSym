@@ -103,27 +103,37 @@ class Car {
         // Update position and direction of the car
         void update(std::vector<Road *> pRoads, std::map<std::array<int, 2>, int> roadSourceMap) {
             float eps = v * 10 * dt;
-            // If sufficiently close to the sink coordinate
-            if (std::hypot(pCurrentRoad->sink[0] - x, pCurrentRoad->sink[1] - y) < eps) {
-                pCurrentRoad = pRoads[roadSourceMap[pCurrentRoad->sink]];
+            if (pCurrentRoad->spawnMode == -1) {
+                // TODO: Randomly choose a start coord
+                pCurrentRoad = pRoads[0];
                 x = pCurrentRoad->source[0];
                 y = pCurrentRoad->source[1];
             }
-            d = pCurrentRoad->flowDir;  // Set the direction of the car to the
-            angle = std::ceil(bearing({0.0f, 0.0f}, d));
-            // flow direction of the current road.
-            float distToNext = getBumperDistance();
-            if (distToNext > s0*10) {
-                x += absCeil(v*d[0] * 10 * dt); // Multiply by 10 since we have 10px == 1m
-                y -= absCeil(v*d[1] * 10 * dt); // Multiply by 10 since we have 10px == 1m
-                // Negative y increment since (0,0) is at the top left
-                // Also we use the ceil function because we cannot have fractions of pixels
-            }   
-            carPos.push_back({x, y});
-            carDir.push_back(d);
-            carAngle.push_back(angle);
-            float dvdt = getAcceleration();
-            // Update speed using acceleration
-            v += dvdt * dt;
+            else {
+                // If sufficiently close to the sink coordinate
+                if (std::hypot(pCurrentRoad->sink[0] - x, pCurrentRoad->sink[1] - y) < eps) {
+                    pCurrentRoad->carNumber -= 1;
+                    pCurrentRoad = pRoads[roadSourceMap[pCurrentRoad->sink]];
+                    pCurrentRoad->carNumber += 1;
+                    x = pCurrentRoad->source[0];
+                    y = pCurrentRoad->source[1];
+                }
+                d = pCurrentRoad->flowDir;  // Set the direction of the car to the
+                angle = std::ceil(bearing({0.0f, 0.0f}, d));
+                // flow direction of the current road.
+                float distToNext = getBumperDistance();
+                if (distToNext > s0*10) {
+                    x += absCeil(v*d[0] * 10 * dt); // Multiply by 10 since we have 10px == 1m
+                    y -= absCeil(v*d[1] * 10 * dt); // Multiply by 10 since we have 10px == 1m
+                    // Negative y increment since (0,0) is at the top left
+                    // Also we use the ceil function because we cannot have fractions of pixels
+                }   
+                carPos.push_back({x, y});
+                carDir.push_back(d);
+                carAngle.push_back(angle);
+                float dvdt = getAcceleration();
+                // Update speed using acceleration
+                v += dvdt * dt;
+            }
         }
 };
