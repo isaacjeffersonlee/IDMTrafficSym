@@ -37,6 +37,7 @@ class Car {
         float s0 = 1;     // Jam Distance
         int l = 5;        // Vehicle length
         Road* pCurrentRoad; // Road the car is currently driving along
+        Road* pStartRoad; // Road the car starts on
         // Positional attributes 
         float v;    // Speed at time t, in m/s
         float dvdt = 0.0;    // Acceleration at time t, in m/s^2
@@ -57,11 +58,13 @@ class Car {
         // Helper function to convert speed from km/h to m/s
         float kmhtoms(float speedKmh) {return (speedKmh * 1000) / 3600;}
 
-        Car(Car* pNextCar, int x0, int y0, float desiredSpeedKmh) 
+        Car(Car* pNextCar, int x0, int y0, float desiredSpeedKmh, Road* pStartRoad) 
             : pNextCar(pNextCar)
             , x0(x0)
             , y0(y0)
+            , pStartRoad(pStartRoad)
         {
+            pCurrentRoad = pStartRoad;
             v0 = kmhtoms(desiredSpeedKmh);
             v = v0;
             x = x0;
@@ -132,7 +135,7 @@ class Car {
         void update(std::vector<Road *> pRoads, std::map<std::array<int, 2>, int> roadSourceMap) {
                 // TODO: Delete the object instead of re-locating
             if (pCurrentRoad->spawnMode == -1) {
-                pCurrentRoad = pRoads[0];
+                pCurrentRoad = pStartRoad;
                 x = pCurrentRoad->source[0];
                 y = pCurrentRoad->source[1];
             }
