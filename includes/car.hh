@@ -38,11 +38,14 @@ class Car {
         int l = 5;        // Vehicle length
         Road* pCurrentRoad; // Road the car is currently driving along
         // Positional attributes 
-        float v = 0.0;    // Speed at time t, in m/s
+        float v;    // Speed at time t, in m/s
+        float dvdt = 0.0;    // Acceleration at time t, in m/s^2
         std::array<float, 2> d;       // Direction/orientation at time t, scaled s.t |d| == 1
         float angle;      // Car bearing, measured anticlockwise from N in degrees
-        int x;            // x std::array<int, 2>inate at time t
-        int y;            // y std::array<int, 2>inate at time t
+        int x;            // x coordinate at time t
+        int y;            // y coordinate at time t
+        int x0;           // x coordinate at time t=0
+        int y0;           // y coordinate at time t=0
         std::vector<std::array<int, 2>> carPos; // ith entry is the (x, y) of the car for frame i
         std::vector<std::array<float, 2>> carDir; // ith entry is the (d1, d2),
         // the direction of the car at frame i
@@ -51,18 +54,23 @@ class Car {
         Car *pNextCar;     // Car ahead
         bool isFirst = false;     // Is this car the first car?
 
-        Car(Car* pNextCar) : pNextCar(pNextCar) 
-        {
-            if (!pNextCar) {
-                isFirst = true;
-                v = v0;
-            }
-        }
-
         // Helper function to convert speed from km/h to m/s
         float kmhtoms(float speedKmh) {return (speedKmh * 1000) / 3600;}
-        // Return the difference in speeds for the car and the pNextCar
 
+        Car(Car* pNextCar, int x0, int y0, float desiredSpeedKmh) 
+            : pNextCar(pNextCar)
+            , x0(x0)
+            , y0(y0)
+        {
+            v0 = kmhtoms(desiredSpeedKmh);
+            v = v0;
+            x = x0;
+            y = y0;
+            if (!pNextCar) {
+                isFirst = true;
+            }
+        }
+        // Return the difference in speeds for the car and the pNextCar
         float getApproachRate() {
             float delta_v;
             if (isFirst) {
@@ -82,58 +90,90 @@ class Car {
             }
             else {  // First car
                 float center_diff = std::hypot(pNextCar->x - x, pNextCar->y - y);
-                return std::max(center_diff - (l * 10), 0.0f);  // Account for length of car
+                return std::max(center_diff - (l * 10), 0.01f);  // Avoid zero division errors
             }
 
         }
 
+        // Return the distance to the current sink coordinate
+        float getCenterDistToSink() {
+            float s = std::hypot(pCurrentRoad->sink[0] - x, pCurrentRoad->sink[1] - y);
+            return s;
+        }
+
         // Return the dvdt, i.e the acceleration for the current frame.
-        float getAcceleration() {
-            if (isFirst) {
-                return 0.0f;
+        float getAcceleration(bool isIntersection) {
+            if (!isIntersection) {
+                if (isFirst) {
+                    if (v < v0) {
+                        return 5.0f;
+                    }
+                    else {
+                        return 0.0f;  // Don't accelerate if at desired speed
+                    }
+                }
+                else {
+                    float delta_v = getApproachRate();
+                    float s = s0 + T*v + ((v * delta_v)/(2*sqrt(a*b)));
+                    float bumpDist = getBumperDistance();  // Distance to next car
+                    return a * (1 - pow((v/v0), delta) - (s/bumpDist)*(s/bumpDist));
+                }
             }
-            else {
-                float delta_v = getApproachRate();
+            else {  // is a traffic light
+                float delta_v = v;
                 float s = s0 + T*v + ((v * delta_v)/(2*sqrt(a*b)));
-                float bumpDist = getBumperDistance();  // Distance to next car
+                float center_diff = getCenterDistToSink();
+                float bumpDist = std::max(center_diff - (0.5f*l*10), 1.0f);  // Account for length of car
                 return a * (1 - pow((v/v0), delta) - (s/bumpDist)*(s/bumpDist));
             }
         }
 
         // Update position and direction of the car
         void update(std::vector<Road *> pRoads, std::map<std::array<int, 2>, int> roadSourceMap) {
-            float eps = v * 10 * dt;
+                // TODO: Delete the object instead of re-locating
             if (pCurrentRoad->spawnMode == -1) {
-                // TODO: Randomly choose a start coord
                 pCurrentRoad = pRoads[0];
                 x = pCurrentRoad->source[0];
                 y = pCurrentRoad->source[1];
             }
             else {
-                // If sufficiently close to the sink coordinate
-                if (std::hypot(pCurrentRoad->sink[0] - x, pCurrentRoad->sink[1] - y) < eps) {
-                    pCurrentRoad->carNumber -= 1;
-                    pCurrentRoad = pRoads[roadSourceMap[pCurrentRoad->sink]];
-                    pCurrentRoad->carNumber += 1;
-                    x = pCurrentRoad->source[0];
-                    y = pCurrentRoad->source[1];
+                Road* pNextRoad = pRoads[roadSourceMap[pCurrentRoad->sink]];
+                float eps = v * 10 * dt;
+                bool isIntersection = false;
+                if (pNextRoad->source != pCurrentRoad->sink) {  // Red Light
+                    isIntersection = true;
+                    float center_diff = getCenterDistToSink();
+                    float bumpDist = std::max(center_diff - (0.5f*l*10), 0.0f);  // Account for length of car
+                    if (bumpDist < eps) {
+                        v = 0.0f;
+                    }
+                }
+                else { // Green Light
+                    // If sufficiently close to the sink coordinate
+                    if (getCenterDistToSink() < eps) {
+                        pCurrentRoad->carNumber -= 1;
+                        pCurrentRoad = pNextRoad;
+                        pCurrentRoad->carNumber += 1;
+                        // Reset x and y to avoid weird behaviour when turning
+                        x = pCurrentRoad->source[0];
+                        y = pCurrentRoad->source[1];
+                    }
                 }
                 d = pCurrentRoad->flowDir;  // Set the direction of the car to the
                 angle = std::ceil(bearing({0.0f, 0.0f}, d));
+                dvdt = getAcceleration(isIntersection);
                 // flow direction of the current road.
-                float distToNext = getBumperDistance();
-                if (distToNext > s0*10) {
-                    x += absCeil(v*d[0] * 10 * dt); // Multiply by 10 since we have 10px == 1m
-                    y -= absCeil(v*d[1] * 10 * dt); // Multiply by 10 since we have 10px == 1m
+                // Update speed using acceleration
+                if (getBumperDistance() > s0*10) {
                     // Negative y increment since (0,0) is at the top left
                     // Also we use the ceil function because we cannot have fractions of pixels
+                    v += dvdt * dt;
+                    x += absCeil(v*d[0] * 10 * dt); // Multiply by 10 since we have 10px == 1m
+                    y -= absCeil(v*d[1] * 10 * dt); // Multiply by 10 since we have 10px == 1m
                 }   
-                carPos.push_back({x, y});
-                carDir.push_back(d);
-                carAngle.push_back(angle);
-                float dvdt = getAcceleration();
-                // Update speed using acceleration
-                v += dvdt * dt;
             }
+            carPos.push_back({x, y});
+            carDir.push_back(d);
+            carAngle.push_back(angle);
         }
 };

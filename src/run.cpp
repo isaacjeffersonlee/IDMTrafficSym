@@ -15,9 +15,6 @@ float simTime = 60;                 // Simulation time in seconds
 int totalFrameNum = simTime / dt;   // Total number of frames
 
 
-// For lane change MOBIL model
-// https://traffic-simulation.de/info/info_MOBIL.html
-
 // Note: We are assuming 10px == 1m irl
 
 
@@ -35,12 +32,14 @@ int main() {
     
     // Simple Interseciton road layout
     Road* pRoad0 = new Road(0, {{100, 420}}, {{500, 420}}, {100, 400}, {500, 440}, 0);
-    Road* pRoad1 = new Road(1, {{500, 420}}, {{520, 440}, {520, 400}}, {500, 400}, {540, 440}, 0);
-    Road* pRoad2 = new Road(2, {{520, 400}}, {{520, 100}}, {500, 100}, {540, 400}, 0);
+    Road* pRoad1 = new Road(1, {{500, 420}, {520, 400}}, {{540, 420}, {520, 440}}, {500, 400}, {540, 440}, 0);
+    Road* pRoad2 = new Road(2, {{520, 100}}, {{520, 400}}, {500, 100}, {540, 400}, 0);
     Road* pRoad3 = new Road(3, {{520, 440}}, {{520, 740}}, {500, 440}, {540, 740}, 0);
     Road* pRoad4 = new Road(4, {{520, 740}}, {{520, 780}}, {500, 740}, {540, 780}, -1);
     Road* pRoad5 = new Road(5, {{520, 100}}, {{520, 60}}, {500, 60}, {540, 100}, -1);
-    std::vector<Road *> pRoads = {pRoad0, pRoad1, pRoad2, pRoad3, pRoad4, pRoad5};
+    Road* pRoad6 = new Road(6, {{540, 420}}, {{800, 420}}, {540, 400}, {800, 440}, 0);
+    Road* pRoad7 = new Road(7, {{800, 420}}, {{840, 420}}, {800, 400}, {840, 440}, -1);
+    std::vector<Road *> pRoads = {pRoad0, pRoad1, pRoad2, pRoad3, pRoad4, pRoad5, pRoad6, pRoad7};
 
     World world(1000, 1000, pRoads);
 
@@ -50,29 +49,23 @@ int main() {
     e.writeRoadsToCSV("../visual/data/road_data.csv", pRoads);
 
     // Setup Car Objects
-    Car* pCar0 = new Car(nullptr);  // nullptr for first car
-    /* Car car3(&pCar2); */
-    pCar0->x = 400;  // Initial position
-    pCar0->y = 420;
-    pCar0->v = pCar0->kmhtoms(180);
+    Car* pCar0 = new Car(nullptr, 400, 420, 120);  // nullptr for first car
     pCar0->pCurrentRoad = pRoad0;
 
-    /* Car* pCar1 = new Car(pCar0); */
-    /* pCar1->x = 200;  // Initial position */
-    /* pCar1->y = 420; */
-    /* pCar1->v = pCar1->kmhtoms(40); */
-    /* pCar1->pCurrentRoad = pRoad0; */
+    Car* pCar1 = new Car(pCar0, 200, 420, 140);
+    pCar1->pCurrentRoad = pRoad0;
 
-    /* Car* pCar2 = new Car(pCar1); */
-    /* pCar2->x = 100;  // Initial position */
-    /* pCar2->y = 420; */
-    /* pCar2->v = pCar2->kmhtoms(20); */
-    /* pCar2->pCurrentRoad = pRoad0; */
+    Car* pCar2 = new Car(nullptr, 520, 200, 30);
+    pCar2->pCurrentRoad = pRoad2;
+
+    Car* pCar3 = new Car(pCar2, 520, 100, 50);
+    pCar3->pCurrentRoad = pRoad2;
 
 
     world.pCars.push_back(pCar0);
-    /* world.pCars.push_back(pCar1); */
-    /* world.pCars.push_back(pCar2); */
+    world.pCars.push_back(pCar1);
+    world.pCars.push_back(pCar2);
+    world.pCars.push_back(pCar3);
 
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {

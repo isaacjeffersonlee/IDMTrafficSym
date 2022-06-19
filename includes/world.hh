@@ -28,8 +28,13 @@ class World {
             , height(height)
             , pRoads(pRoads)
         {
+            // Populate the source map, which maps source coordinates
+            // to their road number. We can do this since 2 roads cannot
+            // share the same source.
             for (Road* pRoad : pRoads) {
-                roadSourceMap[pRoad->source] = pRoad->uniqueID;
+                for (std::array<int, 2> source : pRoad->sources) {
+                    roadSourceMap[source] = pRoad->uniqueID;
+                }
             }
         }
 
@@ -42,11 +47,15 @@ class World {
                    if (fmod(t, pRoad->trafficLightDelay) < 0.001f) {
                        pRoad->updateLight();
                    } 
-               } 
-               pRoad->lightCoords.push_back({pRoad->source[0],
+               pRoad->lightCoords.push_back(
+                       {pRoad->source[0],
                        pRoad->source[1],
                        pRoad->sink[0],
                        pRoad->sink[1]});
+               } 
+               else {
+                   pRoad->lightCoords.push_back({0, 0, 0, 0});
+               }
             }
         }
 

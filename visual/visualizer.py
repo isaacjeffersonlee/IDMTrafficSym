@@ -1,5 +1,4 @@
 import pygame
-import math
 import parser
 import drawer
 import pandas as pd
@@ -71,7 +70,7 @@ def main():
         # Draw the map map
         drawer.draw_map_from_df(win, road_data_df)
         # Draw traffic lights
-        drawer.draw_lights(win, i, sources, sinks, "#0bda51", "#ea3c53")
+        drawer.draw_lights(win, i, sources, sinks, "#0bda51", "#0bda51")
         # Update cars angle and positions
         for idx, car in enumerate(cars):
             car.x, car.y = car_paths[idx][i][0]
