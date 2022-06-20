@@ -8,10 +8,9 @@ An agent based model for traffic flow, implemented in c++ and visualized using p
 ### Todo List
 
 #### Still To Implement
-- TODO: Random car spawning + Better map
+- Play around with param values and record more devlogs
 - TODO: Better README and rename repo
-- TODO: Color changing depending on speed
-- TODO: Print parameter values
+- Writeup
 
 #### Improvements (if time)
 - Read parameters from json/YAML
