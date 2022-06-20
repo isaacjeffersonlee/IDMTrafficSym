@@ -7,6 +7,7 @@
 
 #define PI 3.14159265f
 
+// Helper functions
 float absCeil(float x) {
     if (x < 0.0f) {
         return std::floor(x);
@@ -15,6 +16,7 @@ float absCeil(float x) {
         return std::ceil(x);
     }
 }
+
 
 // Returning the bearing in degrees measured anti-clockwise from North
 // of the vector from a to b
@@ -60,12 +62,23 @@ class Car {
         // Helper function to convert speed from km/h to m/s
         float kmhtoms(float speedKmh) {return (speedKmh * 1000) / 3600;}
 
-        Car(Car* pNextCar, float desiredSpeedKmh, Road* pStartRoad,
-                int spawnIdx, int spawnFrameIdx) 
+        Car(Car* pNextCar, Road* pStartRoad,
+                int spawnIdx, int spawnFrameIdx,
+                float desiredSpeedKmh,
+                float T,
+                float a,
+                float b,
+                int delta,
+                float s0)
             : pNextCar(pNextCar)
             , pStartRoad(pStartRoad)
             , spawnIdx(spawnIdx)
             , spawnFrameIdx(spawnFrameIdx)
+            , T(T)
+            , a(a)
+            , b(b)
+            , delta(delta)
+            , s0(s0)
         {
             pCurrentRoad = pStartRoad;
             v0 = kmhtoms(desiredSpeedKmh);
