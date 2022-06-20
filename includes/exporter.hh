@@ -90,10 +90,22 @@ class Exporter {
             }
         }
 
-    void writeTravelTimesToCSV(std::string fileName, std::vector<float> travelTimes) {
+    void writeTravelTimesAndParamsToCSV(std::string fileName,
+            int numParamSweeps,
+            std::vector<std::vector<float>> allTravelTimes,
+            std::vector<float> TVals, std::vector<float> aVals,
+            std::vector<float> bVals, std::vector<int> deltaVals,
+            std::vector<float> s0Vals) {
         std::ofstream timeFile(fileName);
-        for (float t : travelTimes) {
-            timeFile << t << '\n';
+        timeFile << "T;a;b;delta;s0;travelTimes" << '\n';
+        for (int i = 0; i < numParamSweeps; i++) {
+            timeFile << TVals[i] << ';' << aVals[i] << ';' << bVals[i] << ';' <<
+            deltaVals[i] << ';' << s0Vals[i] << ';';
+            int n = allTravelTimes[i].size();
+            for (int t = 0; t < n-1; t++) {
+                timeFile << allTravelTimes[i][t] << ',';
+            }
+            timeFile << allTravelTimes[i][n] << '\n';  // Last entry edge case
         }
         timeFile.close();
     }

@@ -28,24 +28,34 @@ class World {
         std::vector<Road *> pRoads;
         std::vector<std::vector<Car *>> pActiveCars;
         std::vector<Car *> pDespawnedCars;
+        std::set<Car *> carsToDelete;
         // Map of source coords to road uniqueID
         // Each road is uniquely defined by it's source coordinates because
         // for our model, two pRoads cannot have the same source coordinates.
         std::map<std::array<int, 2>, int> roadSourceMap;
         // (x, y) px coords for starting spawn points
         std::vector<std::array<int, 2>> spawnCoords;  
+        std::vector<int> spawnRoadNums;
         // Travel times for each car, where the ith index -> travel time in seconds
         // for the ith car.
         std::vector<float> travelTimes;
+        Exporter _exporter;
+        bool visualizeData;
 
         World(int width,
                 int height, 
                 std::vector<Road *> pRoads,
-                std::vector<int> spawnRoadNums)
+                std::vector<int> spawnRoadNums,
+                bool visualizeData)
             : width(width)
             , height(height)
             , pRoads(pRoads)
+            , spawnRoadNums(spawnRoadNums)
+            , visualizeData(visualizeData)
+            , _exporter(visualizeData)
         {
+            // Export pRoad data to a csv file so that we can read it in in Python
+            _exporter.writeRoadsToCSV("../visual/data/road_data.csv", pRoads);
             // Populate the source map, which maps source coordinates
             // to their road number. We can do this since 2 roads cannot
             // share the same source.
@@ -141,35 +151,51 @@ class World {
         }
 
         // Free up dynamically allocated memory
-        void deleteRemainingObjects() {
-            std::cout << "Cleaning up..." << std::endl;
+        void cleanupCars() {
+            std::cout << "Cleaning up Cars.." << std::endl;
+            // Use sets, because in some weird edge cases we get car
+            // pointers added to both despawnedCars and activeCars,
+            // and then we would get a double free error.
+            // Probably a better way to do this.
+            for (std::vector<Car *> pCars : pActiveCars) {
+                for (Car* pCar : pCars) {
+                    carsToDelete.insert(pCar);
+                }
+            }
+            for (Car* pCar : pDespawnedCars) {
+                carsToDelete.insert(pCar);
+            }
+            // Reset pActiveCars vector
+            pActiveCars = {};
+            for (int spawnRoadNum : spawnRoadNums) {
+                pActiveCars.push_back({});  // Initialize empty nested vector
+            }
+        }
+
+        void deleteCars() {
+            std::cout << "Deleting Cars..." << std::endl;
+            for (Car* pRemainingCar : carsToDelete) {
+                delete pRemainingCar;
+            }
+        }
+
+        void deleteRoads() {
+            std::cout << "Deleting Roads..." << std::endl;
             // Use sets, because in some weird edge cases we get car
             // pointers added to both despawnedCars and activeCars,
             // and then we would get a double free error.
             // Probably a better way to do this.
             std::set<Road *> remainingRoads;
-            std::set<Car *> remainingCars;
             for (Road* pRoad : pRoads) {
                 remainingRoads.insert(pRoad);
             }
             for (Road* pRemainingRoad : remainingRoads) {
                 delete pRemainingRoad;
             }
-            for (std::vector<Car *> pCars : pActiveCars) {
-                for (Car* pCar : pCars) {
-                    remainingCars.insert(pCar);
-                }
-            }
-            for (Car* pCar : pDespawnedCars) {
-                remainingCars.insert(pCar);
-            }
-            for (Car* pRemainingCar : remainingCars) {
-                delete pRemainingCar;
-            }
         }
 
         // Run a simulation
-        std::vector<float> runSim(bool exportData, float T, float a, float b, int delta, float s0) {
+        std::vector<float> runSim(float T, float a, float b, int delta, float s0) {
             float t = 0.0;
             for (int i = 0; i < totalFrameNum; i++) {
                 t += dt;  // Keep track of overall time elapsed
@@ -189,9 +215,7 @@ class World {
                 }
             }
             
-            Exporter e = Exporter(exportData);
-            if (exportData) {
-                e.writeTravelTimesToCSV("../visual/data/travel_times.csv", travelTimes);
+            if (visualizeData) {
                 std::vector<Car *> pCars;
                 for (std::vector<Car *> activeCars : pActiveCars) {
                     for (Car* pCar : activeCars) {
@@ -201,11 +225,11 @@ class World {
                 for (Car* pDespawnedCar : pDespawnedCars) {
                     pCars.push_back(pDespawnedCar);
                 }
-                e.writeCarsToCSV("../visual/data/car_data.csv", pCars);
-                e.writeTrafficLightsToCSV("../visual/data/light_data.csv", pRoads);
+                _exporter.writeCarsToCSV("../visual/data/car_data.csv", pCars);
+                _exporter.writeTrafficLightsToCSV("../visual/data/light_data.csv", pRoads);
             }
-            deleteRemainingObjects();
-            std::cout << "*Sigh* Simulation complete." << std::endl;
+            cleanupCars();
+            /* std::cout << "*Sigh* Simulation complete." << std::endl; */
             return travelTimes;
         }
 };
