@@ -89,4 +89,12 @@ class Exporter {
                 carFile.close();
             }
         }
+
+    void writeTravelTimesToCSV(std::string fileName, std::vector<float> travelTimes) {
+        std::ofstream timeFile(fileName);
+        for (float t : travelTimes) {
+            timeFile << t << '\n';
+        }
+        timeFile.close();
+    }
 };
