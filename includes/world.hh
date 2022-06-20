@@ -5,12 +5,24 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <random>
+#include <set>
+/* #include "../includes/road.hh" */
+/* #include "../includes/car.hh" */
 #include "../includes/common.hh"
+#include "../includes/exporter.hh"
 
+float getRandomSpeed() {
+    std::random_device rd;
+    std::default_random_engine eng(rd());
+    std::uniform_real_distribution<float> distr(20.0f, 160.0f);
+    return distr(eng);
+}
 
 class World {
 
     public:
+        float t = 0.0f; // Current time in seconds.
         int width;
         int height;
         std::vector<Road *> pRoads;
@@ -22,6 +34,9 @@ class World {
         std::map<std::array<int, 2>, int> roadSourceMap;
         // (x, y) px coords for starting spawn points
         std::vector<std::array<int, 2>> spawnCoords;  
+        // Travel times for each car, where the ith index -> travel time in seconds
+        // for the ith car.
+        std::vector<float> travelTimes;
 
         World(int width,
                 int height, 
@@ -48,22 +63,26 @@ class World {
         // Spawn a car at the spawn coordinate, adding it to the correct pCars
         // vector. Note: spawnFrameIdx is the frame number that the car will
         // spawn at.
-        Car* spawnCar(int spawnNum, float desiredSpeedKmh, int spawnFrameIdx) {
+        Car* spawnCar(int spawnNum, int spawnFrameIdx,
+                float desiredSpeedKmh, float T, float a, float b, int delta, float s0) {
+            /* float spawnTime = spawnFrameIdx * dt;  // Keep track of this for metrics */
             std::array<int, 2> spawnCoord =  spawnCoords[spawnNum];
             Road* pStartRoad = pRoads[roadSourceMap[spawnCoord]];
             // Check whether the pCars vector for the corresponding spawn point
             // has any cars in it, i.e isFirst?
             Car* pCar;
             if (pActiveCars[spawnNum].empty()) {  // First Car
-                pCar = new Car(nullptr, desiredSpeedKmh, pStartRoad,
-                        spawnNum, spawnFrameIdx);  // nullptr for first car
+                pCar = new Car(nullptr, pStartRoad,  // nullptr for first car
+                        spawnNum, spawnFrameIdx,
+                        desiredSpeedKmh, T, a, b, delta, s0);
             }
             else {  // Not first car
                 // Get the current last car for the spawn
                 int n = pActiveCars[spawnNum].size();
                 Car* pNextCar = pActiveCars[spawnNum][n-1];
-                pCar = new Car(pNextCar, desiredSpeedKmh, pStartRoad,
-                        spawnNum, spawnFrameIdx);
+                pCar = new Car(pNextCar, pStartRoad,
+                        spawnNum, spawnFrameIdx,
+                        desiredSpeedKmh, T, a, b, delta, s0);
             }
             pActiveCars[spawnNum].push_back(pCar);
             return pCar;
@@ -85,6 +104,10 @@ class World {
                for (Car* pCar : pCars) {
                    if (pCar->despawn) {
                        despawnCar(pCar);
+                       // Time that passes before car is spawned.
+                       float spawnTime = pCar->spawnFrameIdx * dt;
+                       float travelTime = t - spawnTime;
+                       travelTimes.push_back(travelTime);
                    }
                    else {
                        pCar->updateCar(pRoads, roadSourceMap);
@@ -119,17 +142,70 @@ class World {
 
         // Free up dynamically allocated memory
         void deleteRemainingObjects() {
-            std::cout << "Deleting Objects..." << std::endl;
+            std::cout << "Cleaning up..." << std::endl;
+            // Use sets, because in some weird edge cases we get car
+            // pointers added to both despawnedCars and activeCars,
+            // and then we would get a double free error.
+            // Probably a better way to do this.
+            std::set<Road *> remainingRoads;
+            std::set<Car *> remainingCars;
             for (Road* pRoad : pRoads) {
-                delete pRoad;
+                remainingRoads.insert(pRoad);
+            }
+            for (Road* pRemainingRoad : remainingRoads) {
+                delete pRemainingRoad;
             }
             for (std::vector<Car *> pCars : pActiveCars) {
                 for (Car* pCar : pCars) {
-                    delete pCar;
+                    remainingCars.insert(pCar);
                 }
             }
             for (Car* pCar : pDespawnedCars) {
-                delete pCar;
+                remainingCars.insert(pCar);
             }
+            for (Car* pRemainingCar : remainingCars) {
+                delete pRemainingCar;
+            }
+        }
+
+        // Run a simulation
+        std::vector<float> runSim(bool exportData, float T, float a, float b, int delta, float s0) {
+            float t = 0.0;
+            for (int i = 0; i < totalFrameNum; i++) {
+                t += dt;  // Keep track of overall time elapsed
+                updateWorld(t);
+                // TODO: Put this in a loop
+                if (i % 200 == 0) {
+                    Car* pCar = spawnCar(0, i, getRandomSpeed(), T, a, b, delta, s0);
+                }
+                if (i % 200 == 0) {
+                    Car* pCar = spawnCar(1, i, getRandomSpeed(), T, a, b, delta, s0);
+                }
+                if (i % 200 == 0) {
+                    Car* pCar = spawnCar(2, i, getRandomSpeed(), T, a, b, delta, s0);
+                }
+                if (i % 200 == 0) {
+                    Car* pCar = spawnCar(3, i, getRandomSpeed(), T, a, b, delta, s0);
+                }
+            }
+            
+            Exporter e = Exporter(exportData);
+            if (exportData) {
+                e.writeTravelTimesToCSV("../visual/data/travel_times.csv", travelTimes);
+                std::vector<Car *> pCars;
+                for (std::vector<Car *> activeCars : pActiveCars) {
+                    for (Car* pCar : activeCars) {
+                        pCars.push_back(pCar);
+                    }
+                }
+                for (Car* pDespawnedCar : pDespawnedCars) {
+                    pCars.push_back(pDespawnedCar);
+                }
+                e.writeCarsToCSV("../visual/data/car_data.csv", pCars);
+                e.writeTrafficLightsToCSV("../visual/data/light_data.csv", pRoads);
+            }
+            deleteRemainingObjects();
+            std::cout << "*Sigh* Simulation complete." << std::endl;
+            return travelTimes;
         }
 };
