@@ -5,7 +5,7 @@ import pandas as pd
 
 SCREEN_HEIGHT, SCREEN_WIDTH = 1000, 1000
 FPS = 50
-SIM_TIME = 60  # Simulation time in seconds
+SIM_TIME = 120  # Simulation time in seconds
 dt = 1/FPS  # Number of seconds that pass between frames
 
 
@@ -17,18 +17,6 @@ class Car(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(self.x, self.y))
         self.width, self.length = self.image.get_size()
         self.angle = 0.0
-
-
-def draw(image, x, y, angle, window):
-    """Perform any transforms to the image and draw it on the window."""
-    # x += 15
-    # y -= 15
-    # rect = image.get_rect()  # Get outline rectangle
-    # rect.center = (x, y)  # Center rectangle
-    rotated_image = pygame.transform.rotate(image, angle)
-    rotated_rectangle = rotated_image.get_rect()
-    rotated_rectangle.center = (x, y)
-    window.blit(rotated_image, rotated_rectangle)
 
 
 def main():
@@ -45,7 +33,7 @@ def main():
     # Initialize Car objects
     cars = []
     for idx, path in enumerate(car_paths):
-        car = Car(x0=path[0][0][0], y0=path[0][0][1], img_path=car_imgs[idx])
+        car = Car(x0=path[0][0][0], y0=path[0][0][1], img_path=car_imgs[idx % 4])
         cars.append(car)
 
     # Read in road data
@@ -75,7 +63,7 @@ def main():
         for idx, car in enumerate(cars):
             car.x, car.y = car_paths[idx][i][0]
             car.angle = car_paths[idx][i][1]
-            draw(car.image, car.x, car.y, car.angle, win)
+            drawer.draw_image(win, car.image, car.x, car.y, car.angle)
         i += 1
         pygame.display.update()
 

@@ -65,10 +65,23 @@ class Exporter {
             if (exportData) {
                 std::ofstream carFile(fileName);
                 for (int i = 0; i < totalFrameNum; i++) {
+                    int x_i;
+                    int y_i;
+                    float angle_i;
                     for (Car* pCar : pCars) {
-                        carFile << pCar->carPos[i][0] << ',' << pCar->carPos[i][1] <<
-                            /* ',' << c.carDir[i][0] << ',' << c.carDir[i][1] << */ 
-                            ',' << pCar->carAngle[i] << ';';
+                        int exportOffset = pCar->spawnFrameIdx;
+                        if (i >= exportOffset) {
+                            x_i = pCar->carPos[i-exportOffset][0];
+                            y_i = pCar->carPos[i-exportOffset][1];
+                            angle_i = pCar->carAngle[i-exportOffset];
+                        }
+                        else {
+                            x_i = -1500;
+                            y_i = -1500;
+                            angle_i = -69.0f;
+                        }
+                        carFile << x_i << ',' << y_i <<
+                            ',' << angle_i << ';';
                     }
                     carFile << '\n';
                 }

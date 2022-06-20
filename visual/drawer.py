@@ -1,5 +1,15 @@
 import pygame
 
+def draw_image(pygame_window, image, x, y, angle):
+    """Perform any transforms to the image and draw it on the window."""
+    # x += 15
+    # y -= 15
+    # rect = image.get_rect()  # Get outline rectangle
+    # rect.center = (x, y)  # Center rectangle
+    rotated_image = pygame.transform.rotate(image, angle)
+    rotated_rectangle = rotated_image.get_rect()
+    rotated_rectangle.center = (x, y)
+    pygame_window.blit(rotated_image, rotated_rectangle)
 
 # TODO: Optimize this
 def draw_map_from_df(pygame_window, df):

@@ -28,8 +28,9 @@ float bearing(std::array<float, 2> a, std::array<float, 2> b) {
 class Car {
 
     public:
+        int uniqueID = 0;
         // Model params
-        float v0 = (120.0 * 1000) / 3600; // Desired speed in m/s
+        float v0 = kmhtoms(120.0f); // Desired speed in m/s
         float T = 1.6;    // Reaction time in s
         float a = 0.73;   // Max acceleration in m/s^2
         float b = 1.67;   // Desired deceleration in m/s^2
@@ -45,8 +46,6 @@ class Car {
         float angle;      // Car bearing, measured anticlockwise from N in degrees
         int x;            // x coordinate at time t
         int y;            // y coordinate at time t
-        int x0;           // x coordinate at time t=0
-        int y0;           // y coordinate at time t=0
         std::vector<std::array<int, 2>> carPos; // ith entry is the (x, y) of the car for frame i
         std::vector<std::array<float, 2>> carDir; // ith entry is the (d1, d2),
         // the direction of the car at frame i
@@ -54,21 +53,25 @@ class Car {
         // compass bearing in degrees of the car at time i
         Car *pNextCar;     // Car ahead
         bool isFirst = false;     // Is this car the first car?
+        bool despawn = false;
+        int spawnIdx;    // Index of the spawn point coord for world.spawnCoords
+        int spawnFrameIdx;   // Time at which the car is spawned, in seconds
 
         // Helper function to convert speed from km/h to m/s
         float kmhtoms(float speedKmh) {return (speedKmh * 1000) / 3600;}
 
-        Car(Car* pNextCar, int x0, int y0, float desiredSpeedKmh, Road* pStartRoad) 
+        Car(Car* pNextCar, float desiredSpeedKmh, Road* pStartRoad,
+                int spawnIdx, int spawnFrameIdx) 
             : pNextCar(pNextCar)
-            , x0(x0)
-            , y0(y0)
             , pStartRoad(pStartRoad)
+            , spawnIdx(spawnIdx)
+            , spawnFrameIdx(spawnFrameIdx)
         {
             pCurrentRoad = pStartRoad;
             v0 = kmhtoms(desiredSpeedKmh);
             v = v0;
-            x = x0;
-            y = y0;
+            x = pStartRoad->source[0];
+            y = pStartRoad->source[1];
             if (!pNextCar) {
                 isFirst = true;
             }
@@ -105,11 +108,11 @@ class Car {
         }
 
         // Return the dvdt, i.e the acceleration for the current frame.
-        float getAcceleration(bool isIntersection) {
-            if (!isIntersection) {
+        float getAcceleration(bool nextRoadisIntersection) {
+            if (!nextRoadisIntersection) {
                 if (isFirst) {
                     if (v < v0) {
-                        return 5.0f;
+                        return 20.0f;
                     }
                     else {
                         return 0.0f;  // Don't accelerate if at desired speed
@@ -122,7 +125,7 @@ class Car {
                     return a * (1 - pow((v/v0), delta) - (s/bumpDist)*(s/bumpDist));
                 }
             }
-            else {  // is a traffic light
+            else {  // Next road is a traffic light
                 float delta_v = v;
                 float s = s0 + T*v + ((v * delta_v)/(2*sqrt(a*b)));
                 float center_diff = getCenterDistToSink();
@@ -131,20 +134,25 @@ class Car {
             }
         }
 
+        // Append the car position information vectors (used for exporting)
+        // with the cars current x,y direction, d and angle.
+        void updateExportInfo() {
+            carPos.push_back({x, y});
+            carDir.push_back(d);
+            carAngle.push_back(angle);
+        }
+
         // Update position and direction of the car
-        void update(std::vector<Road *> pRoads, std::map<std::array<int, 2>, int> roadSourceMap) {
-                // TODO: Delete the object instead of re-locating
+        void updateCar(std::vector<Road *> pRoads, std::map<std::array<int, 2>, int> roadSourceMap) {
             if (pCurrentRoad->spawnMode == -1) {
-                pCurrentRoad = pStartRoad;
-                x = pCurrentRoad->source[0];
-                y = pCurrentRoad->source[1];
+                despawn = true;
             }
             else {
                 Road* pNextRoad = pRoads[roadSourceMap[pCurrentRoad->sink]];
                 float eps = v * 10 * dt;
-                bool isIntersection = false;
+                bool nextRoadisIntersection = false;
                 if (pNextRoad->source != pCurrentRoad->sink) {  // Red Light
-                    isIntersection = true;
+                    nextRoadisIntersection = true;
                     float center_diff = getCenterDistToSink();
                     float bumpDist = std::max(center_diff - (0.5f*l*10), 0.0f);  // Account for length of car
                     if (bumpDist < eps) {
@@ -162,10 +170,10 @@ class Car {
                         y = pCurrentRoad->source[1];
                     }
                 }
+                // Flow direction of the current road.
                 d = pCurrentRoad->flowDir;  // Set the direction of the car to the
                 angle = std::ceil(bearing({0.0f, 0.0f}, d));
-                dvdt = getAcceleration(isIntersection);
-                // flow direction of the current road.
+                dvdt = getAcceleration(nextRoadisIntersection);
                 // Update speed using acceleration
                 if (getBumperDistance() > s0*10) {
                     // Negative y increment since (0,0) is at the top left
@@ -175,8 +183,6 @@ class Car {
                     y -= absCeil(v*d[1] * 10 * dt); // Multiply by 10 since we have 10px == 1m
                 }   
             }
-            carPos.push_back({x, y});
-            carDir.push_back(d);
-            carAngle.push_back(angle);
+            updateExportInfo();
         }
 };

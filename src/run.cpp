@@ -2,20 +2,27 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <random>
 #include "../includes/road.hh"
 #include "../includes/car.hh"
 #include "../includes/world.hh"
 #include "../includes/common.hh"
 #include "../includes/exporter.hh"
 
+// Note: We are assuming 10px == 1m irl
 float fps = 50.0;                   // Frames per second
 float dt = 1 / fps;                 // Time between frames
 bool export_data = true;            // Set false to prevent writing to files
-float simTime = 60;                 // Simulation time in seconds
+float simTime = 120;                 // Simulation time in seconds
 int totalFrameNum = simTime / dt;   // Total number of frames
 
 
-// Note: We are assuming 10px == 1m irl
+float getRandomSpeed() {
+    std::random_device rd;
+    std::default_random_engine eng(rd());
+    std::uniform_real_distribution<float> distr(20.0f, 160.0f);
+    return distr(eng);
+}
 
 
 int main() {
@@ -87,7 +94,7 @@ int main() {
     Road* pRoad43 = new Road(43, {{780, 460}}, {{800, 480}}, {780, 440}, {820, 480}, 0);
     Road* pRoad44 = new Road(44, {{760, 520}}, {{740, 500}}, {740, 480}, {780, 520}, 0);
     Road* pRoad45 = new Road(45, {{800, 480}}, {{800, 520}}, {780, 480}, {820, 520}, 0);
-    Road* pRoad46 = new Road(46, {{800, 740}}, {{760, 520}}, {740, 520}, {780, 740}, 0);
+    Road* pRoad46 = new Road(46, {{760, 740}}, {{760, 520}}, {740, 520}, {780, 740}, 0);
     Road* pRoad47 = new Road(47, {{800, 520}}, {{800, 740}}, {780, 520}, {820, 740}, 0);
     Road* pRoad48 = new Road(48, {{760, 780}}, {{760, 740}}, {740, 740}, {780, 780}, 0);
     Road* pRoad49 = new Road(49, {{800, 740}}, {{820, 760}}, {780, 740}, {820, 780}, 0);
@@ -117,37 +124,43 @@ int main() {
         pRoad53, pRoad54, pRoad55, pRoad56, pRoad57, pRoad58, pRoad59, pRoad60,
         pRoad61, pRoad62, pRoad63};
 
-    World world(1000, 1000, pRoads);
+    World world(1000, 1000, pRoads, {1, 62, 58, 55});
 
     // Initialize our exporter object
     Exporter e = Exporter(true);
     // Export pRoad data to a csv file so that we can read it in in Python
     e.writeRoadsToCSV("../visual/data/road_data.csv", pRoads);
 
-    // Setup Car Objects
-    Car* pCar0 = new Car(nullptr, 240, 100, 120, pRoad3);  // nullptr for first car
-
-    Car* pCar1 = new Car(pCar0, 240, 60, 140, pRoad1);
-
-    Car* pCar2 = new Car(nullptr, 200, 900, 120, pRoad60);
-
-    Car* pCar3 = new Car(pCar2, 200, 920, 140, pRoad62);
-
-
-    world.pCars.push_back(pCar0);
-    world.pCars.push_back(pCar1);
-    world.pCars.push_back(pCar2);
-    world.pCars.push_back(pCar3);
-
     float t = 0.0;
     for (int i = 0; i < totalFrameNum; i++) {
         t += dt;  // Keep track of overall time elapsed
         world.updateWorld(t);
+        if (i % 200 == 0) {
+            Car* pCar = world.spawnCar(0, getRandomSpeed(), i);
+        }
+        if (i % 200 == 0) {
+            Car* pCar = world.spawnCar(1, getRandomSpeed(), i);
+        }
+        if (i % 200 == 0) {
+            Car* pCar = world.spawnCar(2, getRandomSpeed(), i);
+        }
+        if (i % 200 == 0) {
+            Car* pCar = world.spawnCar(3, getRandomSpeed(), i);
+        }
     }
-
-    e.writeCarsToCSV("../visual/data/car_data.csv", world.pCars);
+    
+    std::vector<Car *> pCars;
+    for (std::vector<Car *> pActiveCars : world.pActiveCars) {
+        for (Car* pCar : pActiveCars) {
+            pCars.push_back(pCar);
+        }
+    }
+    for (Car* pDespawnedCar : world.pDespawnedCars) {
+        pCars.push_back(pDespawnedCar);
+    }
+    e.writeCarsToCSV("../visual/data/car_data.csv", pCars);
     e.writeTrafficLightsToCSV("../visual/data/light_data.csv", world.pRoads);
-    world.deleteObjects();
+    world.deleteRemainingObjects();
 
     return 0;
 }
