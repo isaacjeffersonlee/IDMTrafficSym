@@ -47,7 +47,7 @@ return a * (1 - pow((v/v0), delta) - (s/bumpDist)*(s/bumpDist));
 For a more in depth look at the implementation, see the report pdf found in the docs section of this repo.
 
 ### Possible Improvements
-- Read parameters from json/YAML
-- [MOBIL][https://traffic-simulation.de/info/info_MOBIL.html] Lane changing 
-- More dynamic method for spawing road layouts
+- Read parameters from json/YAML.
+- [MOBIL](https://traffic-simulation.de/info/info_MOBIL.html) Model for lane changing.
+- More dynamic method for spawing road layouts.
 
