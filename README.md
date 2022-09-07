@@ -6,8 +6,7 @@
 
 ## Introduction
 The IDM model is a microscopic car following traffic flow model, which has been
-implemented in C++ and visualized using Python with Pygame. For some demos see:  [YouTube Demo](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
-
+implemented in C++ and visualized using Python with Pygame.
 ![Demo Example](visual/images/devlog.gif)
 
 ### Key Theory
